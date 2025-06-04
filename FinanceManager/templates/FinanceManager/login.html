@@ -1,0 +1,27 @@
+{% extends 'FinanceManager/base.html' %}
+{% load static %}
+
+{% block content %}
+<h2>Login</h2>
+<div id="message">
+    {% if message %}
+    <p style="color:red;">{{ message }}</p>
+    {% endif %}
+</div>
+<form id="login-form" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        <input type="text" class="form-control" name="username" placeholder="Username" required>
+    </div>
+    <div class="form-group">
+        <input type="password" class="form-control" name="password" placeholder="Password" required>
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary">Login</button>
+</form>
+<br>
+<div class="form-group">
+    <a href="{% url 'register' %}">Don't have an account? Register here.</a>
+</div>
+
+{% endblock %}
