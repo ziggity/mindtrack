@@ -5,7 +5,7 @@
 ![Dashboar show a little ditail of how the page display what the user add in the transaction after added it](docs/images/dashboard.png)
 
 ### Add Transaction
-![How you can see in the picture this part provide with a over view of how the page recibe input from the user](docs/images/add-transaction.png)
+![How you can see in the picture this part provide with a over view of how the page recibe input from the user](docs/images/transaction.png)
 
 
 # Finance Manager
