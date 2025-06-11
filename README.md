@@ -1,4 +1,5 @@
-# Capstone
+# Capstone 
+## Video Demo: [[YouTube Video Demo: ](https://www.youtube.com/watch?v=WH8waNIYepg&list=PLw8uXH0FO69IoGQHcGWT_5T4ghWZL8YIy)]
 ## Project Screenshots
 
 ### Dashboard
@@ -6,6 +7,7 @@
 
 ### Add Transaction
 ![How you can see in the picture this part provide with a over view of how the page recibe input from the user](docs/images/transaction.png)
+
 
 
 # Finance Manager
