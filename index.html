@@ -302,13 +302,31 @@
                             <li><strong>Do a creative task.</strong> Try sketching, doodling, or playing an instrument.</li>
                         </ul>
                     </div>
+                    
                 </div>
-                <div class="accordion-item">
-                    <button class="accordion-header">Mindfulness Guides</button>
-                    <div class="accordion-content"><h4>Mindful Breathing (1-Minute Exercise)</h4><p>This is a simple technique to ground yourself. Sit comfortably, close your eyes, and focus on the sensation of your breath without trying to change it. If your mind wanders, gently guide it back.</p></div>
-                </div>
+       
+        </div>
+        <div class="accordion-item">
+            <button class="accordion-header">Mindfulness Guides</button>
+            <div class="accordion-content"><h4>Mindful Breathing (1-Minute Exercise)</h4><p>This is a simple technique to ground yourself. Sit comfortably, close your eyes, and focus on the sensation of your breath without trying to change it. If your mind wanders, gently guide it back.</p></div>
+        </div><h4>Meditation Timer (3 Minutes)</h4>
+        <div style="text-align: center; margin-top: 1rem;">
+            <div id="timer-visual-container" style="position: relative; width: 150px; height: 150px; margin: 0 auto;">
+                <svg id="timer-progress-svg" viewBox="0 0 100 100" style="width: 100%; height: 100%;">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="var(--border-color)" stroke-width="5"/>
+                    <circle id="timer-progress-bar" cx="50" cy="50" r="45" fill="none" stroke="var(--primary-color)" stroke-width="5" stroke-dasharray="282.7" stroke-dashoffset="282.7" transform="rotate(-90 50 50)"/>
+                </svg>
+                <div id="timer-display" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; font-weight: bold; color: var(--text-color);">03:00</div>
+            </div>
+            <div style="margin-top: 1rem;">
+                <button id="start-timer-btn" style="width: auto; margin-right: 0.5rem; background-color: var(--secondary-color);">Start</button>
+                <button id="reset-timer-btn" style="width: auto; background-color: var(--text-muted);">Reset</button>
+            </div>
+                
             </div>
         </section>
+        
+        </div>
     </main>
 
     <footer>
@@ -373,7 +391,59 @@
             const toISODateString = (date) => date.toISOString().split('T')[0];
             const formatDisplayDate = (date) => date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
+// --- MEDITATION TIMER FUNCTIONALITY ---
+let meditationTimer;
+let timeLeft = 180; // 3 minutes in seconds
+const timerDisplay = document.getElementById('timer-display');
+const startBtn = document.getElementById('start-timer-btn');
+const resetBtn = document.getElementById('reset-timer-btn');
 
+const updateTimerDisplay = () => {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+};
+
+const startTimer = () => {
+    startBtn.disabled = true;
+    startBtn.textContent = 'Pause';
+    meditationTimer = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        if (timeLeft <= 0) {
+            clearInterval(meditationTimer);
+            alert('Meditation complete!');
+            startBtn.textContent = 'Done!';
+        }
+    }, 1000);
+};
+
+const pauseTimer = () => {
+    clearInterval(meditationTimer);
+    startBtn.disabled = false;
+    startBtn.textContent = 'Continue';
+};
+
+const resetTimer = () => {
+    clearInterval(meditationTimer);
+    timeLeft = 180;
+    updateTimerDisplay();
+    startBtn.disabled = false;
+    startBtn.textContent = 'Start';
+};
+
+startBtn.addEventListener('click', () => {
+    if (meditationTimer) {
+        pauseTimer();
+    } else {
+        startTimer();
+    }
+});
+
+resetBtn.addEventListener('click', resetTimer);
+
+// Initial display on page load
+updateTimerDisplay();
             // --- INSPIRATION BOARD FUNCTIONALITY ---
             const renderInspirationBoard = () => {
                 inspirationGrid.innerHTML = '';
