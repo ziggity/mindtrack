@@ -6,8 +6,8 @@
     <title>MindTrack - Your Personal Wellness Journal</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* --- General Styling & Setup --- */
-        :root {
+       /* --- General Styling & Setup --- */
+       :root {
             /* Light Mode Colors (default state) */
             --primary-color: #3B82F6;
             --primary-light: #EFF6FF;
@@ -130,12 +130,12 @@
 
     </style>
 </head>
-<body>
+<body>f
 
     <header>
         <h1>MindTrack</h1>
         <label class="theme-switch" for="theme-toggle" title="Toggle Dark Mode">
-            <input type="checkbox" id="theme-toggle">
+            <input type="checkbox" id="theme-toggle">Darkmode
             <span class="slider"></span>
         </label>
     </header>
@@ -157,7 +157,6 @@
                 </div>
             <input type="file" id="image-uploader" accept="image/*" style="display: none;">
         </section>
-
         <section id="quote-section">
             <p id="quote-text">Loading quote...</p>
             <p id="quote-author"></p>
@@ -180,16 +179,60 @@
                 <label><input type="checkbox" id="sleep"> Good Sleep (7+ hrs)</label>
                 <label><input type="checkbox" id="exercise"> Exercise</label>
                 <label><input type="checkbox" id="meditate"> Meditated</label>
+                <label><input type="checkbox" id="socialize"> Socialized</label>
+                <label><input type="checkbox" id="medication"> Took Medication</label>
+                <label><input type="checkbox" id="hydrate"> Hydrated Well</label>
             </div>
             <h3>Quick Notes</h3>
-            <textarea id="notes" placeholder="Any brief notes for today?"></textarea>
+            <textarea id="notes" placeholder="Any brief notes for today? (Triggers, accomplishments, etc.)"></textarea>
             <button id="save-entry">Save Daily Check-in</button>
         </section>
         
-        <section id="journal"><h2>Journal</h2></section>
-        <section id="calendar"><h2>Your Progress Calendar</h2></section>
-        <section id="trends"><h2>Trends & Analytics</h2></section>
-        <section id="guides"><h2>Guides & Resources</h2></section>
+        <section id="journal">
+            <h2>Journal</h2>
+            <h3>New Entry</h3>
+            <textarea id="journal-entry" placeholder="Write about your day, your thoughts, and your feelings..."></textarea>
+            <button id="save-journal-entry">Save Journal Entry</button>
+            <div class="journal-log-container">
+                <h3>Past Entries</h3>
+                <div id="journal-log"></div>
+            </div>
+        </section>
+
+        <section id="calendar">
+            <h2>Your Progress Calendar</h2>
+            <div class="calendar-header">
+                <button class="calendar-nav" id="prev-month">&lt; Prev</button>
+                <span id="month-year"></span>
+                <button class="calendar-nav" id="next-month">Next &gt;</button>
+            </div>
+            <div class="calendar-grid weekdays">
+                <div class="weekday">Sun</div> <div class="weekday">Mon</div> <div class="weekday">Tue</div> <div class="weekday">Wed</div> <div class="weekday">Thu</div> <div class="weekday">Fri</div> <div class="weekday">Sat</div>
+            </div>
+            <div class="calendar-grid" id="calendar-days"></div>
+        </section>
+
+        <section id="trends">
+            <h2>Trends & Analytics</h2>
+            <h3>Mood Over Time</h3>
+            <div class="chart-container"><canvas id="moodChart"></canvas></div>
+            <h3>Health Habit Frequency</h3>
+            <div class="chart-container"><canvas id="healthHabitChart"></canvas></div>
+        </section>
+
+        <section id="guides">
+            <h2>Guides & Resources</h2>
+            <div class="accordion">
+                <div class="accordion-item">
+                    <button class="accordion-header">Cognitive Behavioral Therapy (CBT) Guides</button>
+                    <div class="accordion-content"><h4>What is CBT?</h4><p>CBT helps you identify and challenge negative thought patterns. The goal is to replace them with more objective, realistic thoughts.</p></div>
+                </div>
+                <div class="accordion-item">
+                    <button class="accordion-header">Mindfulness Guides</button>
+                    <div class="accordion-content"><h4>Mindful Breathing (1-Minute Exercise)</h4><p>This is a simple technique to ground yourself. Sit comfortably, close your eyes, and focus on the sensation of your breath without trying to change it. If your mind wanders, gently guide it back.</p></div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer>
@@ -197,7 +240,7 @@
     </footer>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
     // --- STATE MANAGEMENT ---
     let dailyData = JSON.parse(localStorage.getItem('mindTrackDailyData')) || {};
     let journalData = JSON.parse(localStorage.getItem('mindTrackJournalData')) || {};
@@ -306,11 +349,219 @@ document.addEventListener('DOMContentLoaded', () => {
     // (Other init calls)
 });
 
-// NOTE: For brevity, the full JS for all previous features (calendar, charts, journal, etc.)
-// has been omitted from this script block. You would merge the new "INSPIRATION BOARD"
-// code into your existing script. The key is to add the new state variable,
-// the new DOM elements, the new functions, the new event listeners,
-// and the initialization call to renderInspirationBoard().
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- STATE MANAGEMENT ---
+    let dailyData = JSON.parse(localStorage.getItem('mindTrackDailyData')) || {};
+    let journalData = JSON.parse(localStorage.getItem('mindTrackJournalData')) || {};
+    let currentDate = new Date();
+    let selectedDate = new Date();
+    let moodChartInstance = null;
+    let healthHabitChartInstance = null;
+
+    // --- DOM ELEMENTS ---
+    const themeToggle = document.getElementById('theme-toggle');
+    const moodOptions = document.querySelectorAll('.mood-option');
+    const healthCheckboxes = document.querySelectorAll('.health-log input[type="checkbox"]');
+    const notesInput = document.getElementById('notes');
+    const saveButton = document.getElementById('save-entry');
+    const calendarDaysContainer = document.getElementById('calendar-days');
+    const monthYearDisplay = document.getElementById('month-year');
+    const prevMonthButton = document.getElementById('prev-month');
+    const nextMonthButton = document.getElementById('next-month');
+    const entryDateDisplay = document.getElementById('entry-date-display');
+    const journalEntryInput = document.getElementById('journal-entry');
+    const saveJournalButton = document.getElementById('save-journal-entry');
+    const journalLogContainer = document.getElementById('journal-log');
+    const quoteTextEl = document.getElementById('quote-text');
+    const quoteAuthorEl = document.getElementById('quote-author');
+    const newQuoteBtn = document.getElementById('new-quote-btn');
+
+    // --- THEME FUNCTIONALITY ---
+    const applyTheme = (theme) => {
+        if (theme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.checked = true;
+        } else {
+            document.body.classList.remove('dark-mode');
+            themeToggle.checked = false;
+        }
+        // Re-render charts after theme change to update colors
+        if (moodChartInstance || healthHabitChartInstance) {
+            renderCharts();
+        }
+    };
+
+    themeToggle.addEventListener('change', () => {
+        const newTheme = themeToggle.checked ? 'dark' : 'light';
+        localStorage.setItem('mindTrackTheme', newTheme);
+        applyTheme(newTheme);
+    });
+
+    // --- QUOTE FUNCTIONALITY ---
+    const quotes = [
+        { text: "The best way to get started is to quit talking and begin doing.", author: "Walt Disney" },
+        { text: "The pessimist sees difficulty in every opportunity. The optimist sees opportunity in every difficulty.", author: "Winston Churchill" },
+        { text: "It’s not whether you get knocked down, it’s whether you get up.", author: "Vince Lombardi" },
+        { text: "The only person you are destined to become is the person you decide to be.", author: "Ralph Waldo Emerson" }
+    ];
+
+    const showNewQuote = () => {
+        const randomIndex = Math.floor(Math.random() * quotes.length);
+        quoteTextEl.textContent = `"${quotes[randomIndex].text}"`;
+        quoteAuthorEl.textContent = `- ${quotes[randomIndex].author}`;
+    };
+
+    // --- DATA HANDLING ---
+    const toISODateString = (date) => date.toISOString().split('T')[0];
+    const formatDisplayDate = (date) => date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    const saveDailyData = () => {
+        const dateString = toISODateString(selectedDate);
+        const selectedMood = document.querySelector('.mood-option.selected');
+        const healthLog = {};
+        healthCheckboxes.forEach(cb => { healthLog[cb.id] = cb.checked; });
+        dailyData[dateString] = {
+            mood: selectedMood ? selectedMood.dataset.mood : null,
+            health: healthLog,
+            notes: notesInput.value,
+        };
+        localStorage.setItem('mindTrackDailyData', JSON.stringify(dailyData));
+        alert('Daily Check-in saved!');
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+        renderCharts();
+    };
+    
+    const saveJournalData = () => {
+        const entryText = journalEntryInput.value.trim();
+        if (!entryText) { alert('Journal entry cannot be empty.'); return; }
+        const timestamp = new Date().toISOString();
+        journalData[timestamp] = entryText;
+        localStorage.setItem('mindTrackJournalData', JSON.stringify(journalData));
+        journalEntryInput.value = '';
+        alert('Journal entry saved!');
+        renderJournal();
+    };
+
+    const loadDailyDataForDate = (date) => {
+        selectedDate = date;
+        const dateString = toISODateString(date);
+        const data = dailyData[dateString];
+
+        entryDateDisplay.textContent = `Check-in for ${formatDisplayDate(date)}`;
+        saveButton.textContent = `Save Check-in for ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+
+        moodOptions.forEach(opt => opt.classList.remove('selected'));
+        healthCheckboxes.forEach(cb => cb.checked = false);
+        notesInput.value = '';
+
+        if (data) {
+            if (data.mood) document.querySelector(`.mood-option[data-mood="${data.mood}"]`)?.classList.add('selected');
+            if (data.health) {
+                for (const key in data.health) {
+                    const cb = document.getElementById(key);
+                    if (cb) cb.checked = data.health[key];
+                }
+            }
+            notesInput.value = data.notes || '';
+        }
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    };
+
+    // --- UI RENDERING ---
+    const renderJournal = () => {
+        journalLogContainer.innerHTML = '';
+        const sortedEntries = Object.keys(journalData).sort().reverse();
+        if (sortedEntries.length === 0) {
+            journalLogContainer.innerHTML = '<p>No journal entries yet.</p>';
+            return;
+        }
+        sortedEntries.forEach(timestamp => {
+            const entryDate = new Date(timestamp);
+            const postDiv = document.createElement('div');
+            postDiv.className = 'journal-post';
+            postDiv.innerHTML = `<p class="journal-post-date">${formatDisplayDate(entryDate)} at ${entryDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit'})}</p><p class="journal-post-content">${journalData[timestamp]}</p>`;
+            journalLogContainer.appendChild(postDiv);
+        });
+    };
+
+    const renderCalendar = (year, month) => {
+        calendarDaysContainer.innerHTML = '';
+        monthYearDisplay.textContent = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const todayString = toISODateString(new Date());
+        const selectedDateString = toISODateString(selectedDate);
+        for (let i = 0; i < firstDay; i++) { calendarDaysContainer.appendChild(document.createElement('div')).className = 'day empty'; }
+        for (let i = 1; i <= daysInMonth; i++) {
+            const dayDate = new Date(year, month, i);
+            const dayString = toISODateString(dayDate);
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'day';
+            dayDiv.textContent = i;
+            dayDiv.dataset.date = dayString;
+            if (dayString === todayString) dayDiv.classList.add('today');
+            if (dayString === selectedDateString) dayDiv.classList.add('selected-day');
+            if (dailyData[dayString]) dayDiv.classList.add('has-entry');
+            dayDiv.addEventListener('click', () => loadDailyDataForDate(dayDate));
+            calendarDaysContainer.appendChild(dayDiv);
+        }
+    };
+    
+    // --- CHART RENDERING ---
+    const moodMap = { 'awful': 1, 'bad': 2, 'okay': 3, 'good': 4, 'great': 5 };
+    const moodLabels = ['Awful', 'Bad', 'Okay', 'Good', 'Great'];
+    const renderCharts = () => {
+        const textColor = getComputedStyle(document.body).getPropertyValue('--text-color');
+        const borderColor = getComputedStyle(document.body).getPropertyValue('--border-color');
+        const sortedDates = Object.keys(dailyData).sort((a, b) => new Date(a) - new Date(b));
+
+        const chartOptions = {
+            responsive: true, maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, ticks: { color: textColor, stepSize: 1 }, grid: { color: borderColor } }, x: { ticks: { color: textColor }, grid: { color: borderColor } } },
+            plugins: { legend: { labels: { color: textColor } } }
+        };
+
+        // Mood Chart
+        const moodChartData = sortedDates.map(date => dailyData[date].mood ? moodMap[dailyData[date].mood] : 0);
+        if (moodChartInstance) moodChartInstance.destroy();
+        moodChartInstance = new Chart(document.getElementById('moodChart').getContext('2d'), {
+            type: 'line', data: { labels: sortedDates.map(d => new Date(d).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})), datasets: [{ label: 'Mood Trend', data: moodChartData, borderColor: 'rgba(96, 165, 250, 1)', backgroundColor: 'rgba(96, 165, 250, 0.2)', tension: 0.1, fill: true }] },
+            options: { ...chartOptions, scales: { ...chartOptions.scales, y: { min: 1, max: 5, ticks: { color: textColor, stepSize: 1, callback: (v) => moodLabels[v - 1] }, grid: { color: borderColor } } }, plugins: { ...chartOptions.plugins, tooltip: { callbacks: { label: (c) => `Mood: ${moodLabels[c.parsed.y - 1]}` } } } }
+        });
+
+        // Health Habit Chart
+        const healthHabitCounts = {};
+        const healthHabitLabels = Array.from(healthCheckboxes).map(cb => cb.parentElement.textContent.trim());
+        healthCheckboxes.forEach(cb => { healthHabitCounts[cb.id] = 0; });
+        sortedDates.forEach(date => { if (dailyData[date].health) { for (const habit in dailyData[date].health) { if (dailyData[date].health[habit]) healthHabitCounts[habit]++; } } });
+        if (healthHabitChartInstance) healthHabitChartInstance.destroy();
+        healthHabitChartInstance = new Chart(document.getElementById('healthHabitChart').getContext('2d'), {
+            type: 'bar', data: { labels: healthHabitLabels, datasets: [{ label: 'Total Days Logged', data: Object.values(healthHabitCounts), backgroundColor: ['rgba(239, 68, 68, 0.5)', 'rgba(59, 130, 246, 0.5)', 'rgba(234, 179, 8, 0.5)', 'rgba(16, 185, 129, 0.5)', 'rgba(139, 92, 246, 0.5)', 'rgba(249, 115, 22, 0.5)'] }] },
+            options: { ...chartOptions, plugins: { ...chartOptions.plugins, legend: { display: false } } }
+        });
+    };
+
+    // --- EVENT LISTENERS ---
+    newQuoteBtn.addEventListener('click', showNewQuote);
+    saveButton.addEventListener('click', saveDailyData);
+    saveJournalButton.addEventListener('click', saveJournalData);
+    moodOptions.forEach(option => option.addEventListener('click', () => {
+        moodOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+    }));
+    prevMonthButton.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(currentDate.getFullYear(), currentDate.getMonth()); });
+    nextMonthButton.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(currentDate.getFullYear(), currentDate.getMonth()); });
+    
+    // --- INITIALIZATION ---
+    const savedTheme = localStorage.getItem('mindTrackTheme') || 'dark'; // Default to dark
+    applyTheme(savedTheme);
+    loadDailyDataForDate(selectedDate);
+    renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    renderCharts();
+    renderJournal();
+    showNewQuote();
+});
 </script>
 
 </body>
