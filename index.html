@@ -136,6 +136,35 @@
             font-family: inherit;
             resize: vertical;
         }
+        
+        /* --- NEW: Quote Section --- */
+        #quote-section {
+            text-align: center;
+            background: var(--primary-light);
+            border: 1px solid var(--primary-color);
+            padding: 1.5rem;
+        }
+        #quote-text {
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+        #quote-author {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+        #new-quote-btn {
+            width: auto;
+            margin: 0 auto;
+            padding: 0.5rem 1.25rem;
+            font-size: 0.9rem;
+            background-color: var(--secondary-color);
+        }
+        #new-quote-btn:hover {
+            background-color: #059669; /* Emerald 600 */
+        }
 
         /* --- Dashboard: Mood & Health Tracker --- */
         .mood-selector {
@@ -247,45 +276,7 @@
             background-color: var(--primary-light);
         }
         
-        .day.empty {
-            cursor: default;
-        }
-        .day.empty:hover {
-            background-color: transparent;
-        }
-
-        .day.today {
-            background-color: var(--secondary-color);
-            color: var(--white);
-            font-weight: 700;
-        }
-        
-        .day.selected-day {
-            outline: 2px solid var(--primary-color);
-            background-color: var(--primary-light);
-        }
-
-        .day.has-entry {
-            position: relative;
-        }
-        
-        .day.has-entry::after {
-            content: '';
-            position: absolute;
-            bottom: 6px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-        }
-        
-        .day.today.has-entry::after {
-             background-color: var(--white);
-        }
-        
-        /* --- NEW: Journal Section --- */
+        /* --- Journal Section --- */
         #journal-entry {
             min-height: 150px;
             margin-bottom: 1rem;
@@ -338,24 +329,6 @@
             justify-content: space-between;
             align-items: center;
         }
-
-        .accordion-header::after {
-            content: '+';
-            font-size: 1.5rem;
-            color: var(--primary-color);
-            transition: transform 0.3s ease;
-        }
-
-        .accordion-header.active::after {
-            transform: rotate(45deg);
-        }
-
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
-            padding: 0 1.25rem;
-        }
         
         /* --- Footer --- */
         footer {
@@ -381,8 +354,14 @@
             <li><a href="#guides">Guides</a></li>
         </ul>
     </nav>
-
+    
     <main class="container">
+        <section id="quote-section">
+            <p id="quote-text">Loading quote...</p>
+            <p id="quote-author"></p>
+            <button id="new-quote-btn">New Quote</button>
+        </section>
+
         <section id="dashboard">
             <h2>Today's Check-in</h2>
             <p id="entry-date-display"></p>
@@ -496,10 +475,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveJournalButton = document.getElementById('save-journal-entry');
     const journalLogContainer = document.getElementById('journal-log');
     const accordionHeaders = document.querySelectorAll('.accordion-header');
+    const quoteTextEl = document.getElementById('quote-text');
+    const quoteAuthorEl = document.getElementById('quote-author');
+    const newQuoteBtn = document.getElementById('new-quote-btn');
 
     // --- DATE HELPERS ---
     const toISODateString = (date) => date.toISOString().split('T')[0];
     const formatDisplayDate = (date) => date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    // --- QUOTE FUNCTIONALITY ---
+    const quotes = [
+        { text: "The best way to get started is to quit talking and begin doing.", author: "Walt Disney" },
+        { text: "The pessimist sees difficulty in every opportunity. The optimist sees opportunity in every difficulty.", author: "Winston Churchill" },
+        { text: "It’s not whether you get knocked down, it’s whether you get up.", author: "Vince Lombardi" },
+        { text: "Your time is limited, don’t waste it living someone else’s life.", author: "Steve Jobs" },
+        { text: "The only person you are destined to become is the person you decide to be.", author: "Ralph Waldo Emerson" },
+        { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+        { text: "Start where you are. Use what you have. Do what you can.", author: "Arthur Ashe" },
+        { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston S. Churchill" }
+    ];
+
+    const showNewQuote = () => {
+        const randomIndex = Math.floor(Math.random() * quotes.length);
+        quoteTextEl.textContent = `"${quotes[randomIndex].text}"`;
+        quoteAuthorEl.textContent = `- ${quotes[randomIndex].author}`;
+    };
 
     // --- DATA HANDLING ---
     const saveDailyData = () => {
@@ -651,34 +651,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Render Mood Line Chart
         if (moodChartInstance) moodChartInstance.destroy();
         moodChartInstance = new Chart(document.getElementById('moodChart').getContext('2d'), {
-            type: 'line',
-            data: {
-                labels: moodChartLabels,
-                datasets: [{
-                    label: 'Mood Trend', data: moodChartData,
-                    borderColor: 'rgba(59, 130, 246, 1)',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    tension: 0.1, fill: true
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                scales: { y: { min: 1, max: 5, ticks: { stepSize: 1, callback: (value) => moodLabels[value - 1] } } },
-                plugins: { tooltip: { callbacks: { label: (context) => `Mood: ${moodLabels[context.parsed.y - 1]}` } } }
-            }
+            type: 'line', data: { labels: moodChartLabels, datasets: [{ label: 'Mood Trend', data: moodChartData, borderColor: 'rgba(59, 130, 246, 1)', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.1, fill: true }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 1, max: 5, ticks: { stepSize: 1, callback: (value) => moodLabels[value - 1] } } }, plugins: { tooltip: { callbacks: { label: (context) => `Mood: ${moodLabels[context.parsed.y - 1]}` } } } }
         });
 
         // Render Health Habit Bar Chart
         if (healthHabitChartInstance) healthHabitChartInstance.destroy();
         healthHabitChartInstance = new Chart(document.getElementById('healthHabitChart').getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: healthHabitLabels,
-                datasets: [{
-                    label: 'Total Days Logged', data: healthHabitData,
-                    backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(54, 162, 235, 0.5)', 'rgba(255, 206, 86, 0.5)', 'rgba(75, 192, 192, 0.5)', 'rgba(153, 102, 255, 0.5)', 'rgba(255, 159, 64, 0.5)']
-                }]
-            },
+            type: 'bar', data: { labels: healthHabitLabels, datasets: [{ label: 'Total Days Logged', data: healthHabitData, backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(54, 162, 235, 0.5)', 'rgba(255, 206, 86, 0.5)', 'rgba(75, 192, 192, 0.5)', 'rgba(153, 102, 255, 0.5)', 'rgba(255, 159, 64, 0.5)'] }] },
             options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } }
         });
     };
@@ -693,6 +673,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     saveButton.addEventListener('click', saveDailyData);
     saveJournalButton.addEventListener('click', saveJournalData);
+    newQuoteBtn.addEventListener('click', showNewQuote);
     prevMonthButton.addEventListener('click', () => {
         currentDate.setMonth(currentDate.getMonth() - 1);
         renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
@@ -718,6 +699,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
     renderCharts();
     renderJournal();
+    showNewQuote(); // Show a quote on page load
 });
 </script>
 
