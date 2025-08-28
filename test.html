@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindTrack - Your Personal Wellness Journal</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* --- General Styling & Setup --- */
+        :root {
+            /* Light Mode Colors (default state) */
+            --primary-color: #3B82F6;
+            --primary-light: #EFF6FF;
+            --secondary-color: #10B981;
+            --bg-color: #F9FAFB;
+            --card-bg: #FFFFFF;
+            --text-color: #1F2937;
+            --text-muted: #6B7280;
+            --border-color: #E5E7EB;
+            --input-bg: #F9FAFB;
+        }
+
+        body.dark-mode {
+            /* Dark Mode Colors */
+            --primary-color: #60A5FA;
+            --primary-light: #374151;
+            --secondary-color: #34D399;
+            --bg-color: #111827;
+            --card-bg: #1F2937;
+            --text-color: #F9FAFB;
+            --text-muted: #9CA3AF;
+            --border-color: #4B5563;
+            --input-bg: #374151;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* --- Layout & Structure --- */
+        .container { max-width: 960px; margin: 0 auto; padding: 20px; }
+        header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 { color: var(--primary-color); font-size: 2.5rem; }
+        nav { position: sticky; top: 0; background: var(--card-bg); z-index: 1000; border-bottom: 1px solid var(--border-color); }
+        nav ul { list-style: none; display: flex; justify-content: center; flex-wrap: wrap; padding: 1rem 0; }
+        nav ul li a { text-decoration: none; color: var(--text-muted); padding: 0.5rem 1.5rem; font-weight: 600; transition: color 0.3s, background-color 0.3s; border-radius: 20px; }
+        nav ul li a:hover, nav ul li a.active { color: var(--primary-color); background-color: var(--primary-light); }
+        section { background: var(--card-bg); margin-bottom: 2rem; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid var(--border-color); }
+        h2 { font-size: 1.8rem; color: var(--text-color); margin-bottom: 1.5rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; }
+        h3 { font-size: 1.2rem; color: var(--text-color); margin-top: 1.5rem; margin-bottom: 1rem; }
+        button { background-color: var(--primary-color); color: #FFFFFF; border: none; padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600; border-radius: 6px; cursor: pointer; transition: background-color 0.3s; display: block; width: 100%; }
+        button:hover { opacity: 0.9; }
+        textarea { width: 100%; padding: 1rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; font-family: inherit; resize: vertical; background-color: var(--input-bg); color: var(--text-color); }
+
+        /* --- Theme Toggle Switch --- */
+        .theme-switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .theme-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input:checked + .slider:before { transform: translateX(26px); }
+        
+        /* --- All other styles from previous versions remain the same... --- */
+        #quote-section { text-align: center; background: var(--primary-light); border: 1px solid var(--border-color); padding: 1.5rem; }
+        #quote-text { font-size: 1.1rem; font-style: italic; color: var(--text-color); margin-bottom: 1rem; }
+        #quote-author { font-weight: 600; color: var(--primary-color); margin-bottom: 1.5rem; }
+        #new-quote-btn { width: auto; margin: 0 auto; padding: 0.5rem 1.25rem; font-size: 0.9rem; background-color: var(--secondary-color); }
+        .mood-option.selected { border-color: var(--primary-color); background-color: var(--primary-light); }
+        .health-log label { display: flex; align-items: center; background: var(--input-bg); padding: 0.75rem; border-radius: 6px; cursor: pointer; }
+        #entry-date-display { font-weight: 600; color: var(--text-muted); text-align: center; margin-bottom: 1.5rem; font-size: 1.2rem; }
+        .journal-post-date { font-weight: 600; color: var(--text-muted); }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .calendar-grid div { text-align: center; padding: 0.75rem 0.25rem; border-radius: 4px; }
+        .day { cursor: pointer; }
+        .day:hover { background-color: var(--primary-light); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>MindTrack</h1>
+        <label class="theme-switch" for="theme-toggle" title="Toggle Dark Mode">
+            <input type="checkbox" id="theme-toggle">
+            <span class="slider"></span>
+        </label>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#dashboard" class="active">Dashboard</a></li>
+            <li><a href="#journal">Journal</a></li>
+            <li><a href="#calendar">Calendar</a></li>
+            <li><a href="#trends">Trends</a></li>
+            <li><a href="#guides">Guides</a></li>
+        </ul>
+    </nav>
+    
+    <main class="container">
+        <section id="quote-section">
+            <p id="quote-text">Loading quote...</p>
+            <p id="quote-author"></p>
+            <button id="new-quote-btn">New Quote</button>
+        </section>
+
+        <section id="dashboard">
+            <h2>Today's Check-in</h2>
+            <p id="entry-date-display"></p>
+            <h3>How are you feeling today?</h3>
+            <div class="mood-selector">
+                <span class="mood-option" data-mood="awful" title="Awful">😞</span>
+                <span class="mood-option" data-mood="bad" title="Bad">😟</span>
+                <span class="mood-option" data-mood="okay" title="Okay">😐</span>
+                <span class="mood-option" data-mood="good" title="Good">😊</span>
+                <span class="mood-option" data-mood="great" title="Great">😄</span>
+            </div>
+            <h3>Health Log</h3>
+            <div class="health-log">
+                <label><input type="checkbox" id="sleep"> Good Sleep (7+ hrs)</label>
+                <label><input type="checkbox" id="exercise"> Exercise</label>
+                <label><input type="checkbox" id="meditate"> Meditated</label>
+            </div>
+            <h3>Quick Notes</h3>
+            <textarea id="notes" placeholder="Any brief notes for today?"></textarea>
+            <button id="save-entry">Save Daily Check-in</button>
+        </section>
+        
+        <section id="journal">
+            <h2>Journal</h2>
+            </section>
+        <section id="calendar">
+            <h2>Your Progress Calendar</h2>
+            <div class="calendar-header">
+                <button id="prev-month">&lt; Prev</button>
+                <span id="month-year"></span>
+                <button id="next-month">Next &gt;</button>
+            </div>
+            <div class="calendar-grid weekdays">
+                </div>
+            <div class="calendar-grid" id="calendar-days"></div>
+        </section>
+        </main>
+
+    <footer>
+        <p>&copy; 2025 MindTrack. For personal tracking only.</p>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- STATE MANAGEMENT (remains the same) ---
+    let dailyData = JSON.parse(localStorage.getItem('mindTrackDailyData')) || {};
+    let journalData = JSON.parse(localStorage.getItem('mindTrackJournalData')) || {};
+    let currentDate = new Date();
+    let selectedDate = new Date();
+    // (other state variables)
+
+    // --- DOM ELEMENTS (add one new element) ---
+    const themeToggle = document.getElementById('theme-toggle');
+    const dashboardTitle = document.querySelector('#dashboard h2'); // <-- ADD THIS
+    const moodOptions = document.querySelectorAll('.mood-option');
+    const healthCheckboxes = document.querySelectorAll('.health-log input[type="checkbox"]');
+    const notesInput = document.getElementById('notes');
+    const saveButton = document.getElementById('save-entry');
+    const calendarDaysContainer = document.getElementById('calendar-days');
+    // (other DOM elements)
+    
+    // --- DATE HELPERS (remains the same) ---
+    const toISODateString = (date) => date.toISOString().split('T')[0];
+    const formatDisplayDate = (date) => date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    // --- DATA HANDLING (remains the same) ---
+    const saveDailyData = () => {
+        const dateString = toISODateString(selectedDate);
+        const selectedMood = document.querySelector('.mood-option.selected');
+        const healthLog = {};
+        healthCheckboxes.forEach(cb => { healthLog[cb.id] = cb.checked; });
+        dailyData[dateString] = {
+            mood: selectedMood ? selectedMood.dataset.mood : null,
+            health: healthLog,
+            notes: notesInput.value,
+        };
+        localStorage.setItem('mindTrackDailyData', JSON.stringify(dailyData));
+        alert('Check-in saved!');
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+        // renderCharts(); // Assuming this function exists
+    };
+    
+    // --- UPDATED FUNCTION ---
+    const loadDailyDataForDate = (date) => {
+        selectedDate = date;
+        const dateString = toISODateString(date);
+        const data = dailyData[dateString];
+        const isToday = toISODateString(date) === toISODateString(new Date());
+
+        // --- DYNAMIC UI TEXT ---
+        // This is the key change to make the feature intuitive
+        dashboardTitle.textContent = isToday ? "Today's Check-in" : `Check-in for ${date.toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}`;
+        entryDateDisplay.textContent = formatDisplayDate(date);
+        saveButton.textContent = `Save Check-in for ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+
+        // Clear and populate form (this logic remains the same)
+        moodOptions.forEach(opt => opt.classList.remove('selected'));
+        healthCheckboxes.forEach(cb => cb.checked = false);
+        notesInput.value = '';
+
+        if (data) {
+            if (data.mood) document.querySelector(`.mood-option[data-mood="${data.mood}"]`)?.classList.add('selected');
+            if (data.health) {
+                for (const key in data.health) {
+                    const cb = document.getElementById(key);
+                    if (cb) cb.checked = data.health[key];
+                }
+            }
+            notesInput.value = data.notes || '';
+        }
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    };
+
+    // --- UI RENDERING (Calendar and others remain the same) ---
+    const renderCalendar = (year, month) => {
+        calendarDaysContainer.innerHTML = '';
+        const monthYearDisplay = document.getElementById('month-year');
+        monthYearDisplay.textContent = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const todayString = toISODateString(new Date());
+        const selectedDateString = toISODateString(selectedDate);
+        
+        // Create empty cells for days before the 1st of the month
+        for (let i = 0; i < firstDay; i++) { 
+            const emptyCell = document.createElement('div');
+            emptyCell.className = 'day empty';
+            calendarDaysContainer.appendChild(emptyCell);
+        }
+
+        // Create cells for each day of the month
+        for (let i = 1; i <= daysInMonth; i++) {
+            const dayDate = new Date(year, month, i);
+            const dayString = toISODateString(dayDate);
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'day';
+            dayDiv.textContent = i;
+            dayDiv.dataset.date = dayString;
+            
+            if (dayString === todayString) dayDiv.classList.add('today');
+            if (dayString === selectedDateString) dayDiv.classList.add('selected-day');
+            if (dailyData[dayString]) dayDiv.classList.add('has-entry');
+            
+            dayDiv.addEventListener('click', () => loadDailyDataForDate(dayDate));
+            calendarDaysContainer.appendChild(dayDiv);
+        }
+    };
+    
+    // --- EVENT LISTENERS (add listeners for calendar navigation) ---
+    saveButton.addEventListener('click', saveDailyData);
+    document.getElementById('prev-month').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    });
+    document.getElementById('next-month').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    });
+    // (other event listeners...)
+    
+    // --- INITIALIZATION (remains the same) ---
+    // const savedTheme = localStorage.getItem('mindTrackTheme') || 'dark';
+    // applyTheme(savedTheme); // Assuming applyTheme function exists
+    loadDailyDataForDate(selectedDate);
+    // (other init calls...)
+});
+</script>
+
+</body>
+</html>

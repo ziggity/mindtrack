@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detailed Guide: Deploying a Dynamic Website on AWS EC2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .guide-section {
+            border-left: 2px solid #059669; /* A shade of green */
+            padding-left: 2rem;
+            margin-left: -2px; 
+            padding-bottom: 2rem;
+            position: relative;
+        }
+        .guide-section:before {
+            content: '';
+            position: absolute;
+            left: -11px;
+            top: 2.25rem; /* Align with h2 */
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #059669;
+            border: 3px solid #111827; /* bg-gray-900 */
+        }
+        .guide-section:last-child {
+            border-left: none;
+            padding-bottom: 0;
+        }
+        .guide-section:last-child:before {
+           display: none;
+        }
+        .code-block {
+            position: relative;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-300">
+
+    <div class="max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
+        
+        <header class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Deploy a Dynamic Website on AWS EC2</h1>
+            <p class="text-lg md:text-xl text-green-300">A Detailed Guide to Hosting Your App & Database on a Single Server</p>
+        </header>
+
+        <main class="space-y-8">
+            <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-white mb-3">Architecture Overview</h2>
+                <p>This guide will walk you through setting up a traditional, server-based dynamic website. We will use a single AWS EC2 instance (a virtual server) to host both the web application files and the database. This is a powerful and flexible approach that gives you complete control over your server environment.</p>
+            </div>
+
+            <section id="step1" class="guide-section">
+                <h2 class="text-3xl font-bold text-white mb-6">Step 1: Launch Your EC2 Virtual Server</h2>
+                <div class="space-y-6">
+                    <p>First, we need to create the virtual server that will run our website.</p>
+                    <ol class="list-decimal list-inside space-y-4 pl-4">
+                        <li>Navigate to the <strong class="text-green-400">EC2 service</strong> in your AWS Console and click "Launch instance".</li>
+                        <li><strong>Name and tags:</strong> Give your server a descriptive name, like `my-dynamic-website-server`.</li>
+                        <li><strong>Application and OS Images (AMI):</strong> Choose an Amazon Machine Image. <strong class="text-green-400">Amazon Linux 2</strong> is a great, free-tier eligible choice.</li>
+                        <li><strong>Instance type:</strong> Select <strong class="text-green-400">t2.micro</strong>. This is crucial to stay within the AWS Free Tier for new accounts.</li>
+                        <li><strong>Key pair (login):</strong> This is your server's password. Click "Create new key pair", give it a name (e.g., `my-website-key`), and select `.pem` format. The key file will download immediately. <strong class="text-red-400">Keep this file safe and private!</strong> You will not be able to download it again.</li>
+                        <li><strong>Network settings:</strong> Click "Edit". In the "Security group" section, create a new one with a descriptive name. Add the following <strong class="text-green-400">inbound rules</strong>:
+                            <ul class="list-disc list-inside mt-2 pl-6 space-y-1 bg-gray-800 p-4 rounded-lg">
+                                <li><strong>Type `SSH`</strong> | Port `22` | Source: `My IP` (This allows you to securely connect to the server from your current IP address).</li>
+                                <li><strong>Type `HTTP`</strong> | Port `80` | Source: `Anywhere` (This allows visitors to access your website).</li>
+                                <li><strong>Type `HTTPS`</strong> | Port `443` | Source: `Anywhere` (For future use when you add an SSL certificate).</li>
+                            </ul>
+                        </li>
+                        <li>Review the summary and click <strong class="text-green-400">"Launch instance"</strong>.</li>
+                    </ol>
+                </div>
+            </section>
+
+            <section id="step2" class="guide-section">
+                <h2 class="text-3xl font-bold text-white mb-6">Step 2: Assign a Static IP Address</h2>
+                <div class="space-y-6">
+                    <p>A new server's public IP address can change if it's stopped and restarted. An Elastic IP is a static, public IP address you can assign to your instance to prevent this.</p>
+                    <ol class="list-decimal list-inside space-y-4 pl-4">
+                        <li>In the EC2 console menu, go to <strong class="text-green-400">"Elastic IPs"</strong>.</li>
+                        <li>Click "Allocate Elastic IP address" and then "Allocate".</li>
+                        <li>Select the newly created IP, click "Actions", and choose "Associate Elastic IP address".</li>
+                        <li>In the dialog, select your running EC2 instance and click "Associate". Your server now has a permanent public IP.</li>
+                    </ol>
+                </div>
+            </section>
+
+            <section id="step3" class="guide-section">
+                <h2 class="text-3xl font-bold text-white mb-6">Step 3: Install the Web Stack (LAMP)</h2>
+                <div class="space-y-6">
+                    <p>Now, we'll connect to the server and install the necessary software: Linux (already running), Apache (web server), MariaDB (database), and PHP (programming language).</p>
+                    <h3 class="text-xl font-semibold text-green-400">Connect via SSH</h3>
+                    <p>Open a terminal (on macOS/Linux) or an SSH client like PuTTY (on Windows). Use the following command, replacing the placeholders:</p>
+                    <div class="code-block">
+                        <pre class="bg-gray-800 p-4 rounded-lg text-gray-300 overflow-x-auto"><code class="language-bash"># Make your key file read-only first
+chmod 400 /path/to/my-website-key.pem
+
+# Connect to the server
+ssh -i /path/to/my-website-key.pem ec2-user@YOUR_ELASTIC_IP</code></pre>
+                    </div>
+                    <h3 class="text-xl font-semibold text-green-400 mt-4">Run Installation Commands</h3>
+                    <p>Once connected, run these commands one by one:</p>
+                    <div class="code-block">
+                        <pre class="bg-gray-800 p-4 rounded-lg text-gray-300 overflow-x-auto"><code class="language-bash"># 1. Update all installed packages to their latest versions
+sudo yum update -y
+
+# 2. Install Apache, MariaDB, and PHP with the MySQL connector
+sudo yum install -y httpd mariadb-server php php-mysqlnd
+
+# 3. Start the Apache web server now
+sudo systemctl start httpd
+
+# 4. Configure Apache to start automatically on server boot
+sudo systemctl enable httpd
+
+# 5. Start the MariaDB database server now
+sudo systemctl start mariadb
+
+# 6. Configure MariaDB to start automatically on server boot
+sudo systemctl enable mariadb
+
+# 7. Run the security script to set a root password and secure the database
+sudo mysql_secure_installation</code></pre>
+                    </div>
+                    <p class="mt-2">For the `mysql_secure_installation` script, press ENTER for the first prompt (current root password), then 'Y' to set a new root password. For all subsequent questions, it's safe to answer 'Y' (yes).</p>
+                </div>
+            </section>
+            
+            <section id="step4" class="guide-section">
+                <h2 class="text-3xl font-bold text-white mb-6">Step 4: Create Your Database and User</h2>
+                <div class="space-y-6">
+                     <p>It's best practice to create a dedicated user for your application instead of using the root user.</p>
+                     <div class="code-block">
+                        <pre class="bg-gray-800 p-4 rounded-lg text-gray-300 overflow-x-auto"><code class="language-sql">-- 1. Log in to MariaDB as the root user
+sudo mysql -u root -p
+
+-- 2. Create a new database
+CREATE DATABASE my_webapp_db;
+
+-- 3. Create a new user that can only be accessed from the server itself ('localhost')
+CREATE USER 'my_webapp_user'@'localhost' IDENTIFIED BY 'YourStrongPassword123!';
+
+-- 4. Grant all privileges on your new database to your new user
+GRANT ALL PRIVILEGES ON my_webapp_db.* TO 'my_webapp_user'@'localhost';
+
+-- 5. Apply the changes
+FLUSH PRIVILEGES;
+
+-- 6. Exit the database client
+EXIT;</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <section id="step5" class="guide-section">
+                <h2 class="text-3xl font-bold text-white mb-6">Step 5: Set Up a Users Table in the Database</h2>
+                <div class="space-y-6">
+                    <p>Now, let's create a table within our new database to store user information. Log back into MariaDB and run the following command.</p>
+                    <div class="code-block">
+                        <pre class="bg-gray-800 p-4 rounded-lg text-gray-300 overflow-x-auto"><code class="language-sql">-- 1. Log in to MariaDB as the root user
+sudo mysql -u root -p
+
+-- 2. Select the database you want to use
+USE my_webapp_db;
+
+-- 3. Create the 'users' table
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4. Exit the database client
+EXIT;</code></pre>
+                    </div>
+                    <div class="bg-yellow-900/30 border-l-4 border-yellow-500 p-4 rounded-r-lg mt-4">
+                        <p class="font-semibold text-yellow-300">Security Best Practice</p>
+                        <p class="text-yellow-200/80">Notice we named the column `password_hash`. We will <strong class="text-white">never</strong> store passwords directly. Instead, we will store a secure, one-way hash of the password. This means even if the database is compromised, the actual passwords are not exposed.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="step6" class="guide-section">
+                <h2 class="text-3xl font-bold text-white mb-6">Step 6: Create the User Registration App</h2>
+                <div class="space-y-6">
+                    <p>We'll create three files in the web root (`/var/www/html`): an index page, an HTML form for registration, and a PHP script to handle the form submission.</p>
+                    
+                    <h3 class="text-xl font-semibold text-green-400">1. Create the Index Page (`index.html`)</h3>
+                    <p>This will be a simple landing page. Run `sudo nano /var/www/html/index.html` and add this content:</p>
+                    <div class="code-block">
+                        <pre class="bg-gray-800 p-4 rounded-lg text-gray-300 overflow-x-auto"><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Welcome&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Welcome to My Dynamic Website&lt;/h1&gt;
+  &lt;a href="register.html"&gt;Register a new user&lt;/a&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-green-400 mt-4">2. Create the Registration Form (`register.html`)</h3>
+                    <p>This form will collect the user's desired username and password. Run `sudo nano /var/www/html/register.html` and add this:</p>
+                    <div class="code-block">
+                        <pre class="bg-gray-800 p-4 rounded-lg text-gray-300 overflow-x-auto"><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;User Registration&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+  &lt;h2&gt;Register&lt;/h2&gt;
+  &lt;form action="handle_register.php" method="post"&gt;
+    &lt;label for="username"&gt;Username:&lt;/label&gt;&lt;br&gt;
+    &lt;input type="text" id="username" name="username" required&gt;&lt;br&gt;
+    &lt;label for="password"&gt;Password:&lt;/label&gt;&lt;br&gt;
+    &lt;input type="password" id="password" name="password" required&gt;&lt;br&gt;&lt;br&gt;
+    &lt;input type="submit" value="Register"&gt;
+  &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-green-400 mt-4">3. Create the PHP Handler (`handle_register.php`)</h3>
+                    <p>This is the core logic. It takes the form data, hashes the password, and saves it to the database. Run `sudo nano /var/www/html/handle_register.php` and add this script:</p>
+                    <div class="code-block">
+                        <pre class="bg-gray-800 p-4 rounded-lg text-gray-300 overflow-x-auto"><code class="language-php">&lt;?php
+// Database credentials
+$servername = "localhost";
+$username = "my_webapp_user";
+$password = "YourStrongPassword123!";
+$dbname = "my_webapp_db";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn-&gt;connect_error) {
+  die("Connection failed: " . $conn-&gt;connect_error);
+}
+
+// Get username and password from the form
+$user = $_POST['username'];
+$pass = $_POST['password'];
+
+// --- Security: Hash the password ---
+$password_hash = password_hash($pass, PASSWORD_BCRYPT);
+
+// --- Security: Use a prepared statement to prevent SQL injection ---
+$stmt = $conn-&gt;prepare("INSERT INTO users (username, password_hash) VALUES (?, ?)");
+$stmt-&gt;bind_param("ss", $user, $password_hash);
+
+// Execute the statement and provide feedback
+if ($stmt-&gt;execute()) {
+  echo "New record created successfully. You can now log in.";
+} else {
+  echo "Error: " . $stmt-&gt;error;
+}
+
+$stmt-&gt;close();
+$conn-&gt;close();
+?&gt;</code></pre>
+                    </div>
+                </div>
+            </section>
+
+
+            <section id="step7" class="guide-section">
+                <h2 class="text-3xl font-bold text-white mb-6">Step 7: Point Your Domain to the Server</h2>
+                <div class="space-y-6">
+                    <p>The final step is to tell your domain name where to find your server.</p>
+                     <ol class="list-decimal list-inside space-y-4 pl-4">
+                        <li>Navigate to <strong class="text-green-400">Route 53</strong> in the AWS Console and select your Hosted Zone.</li>
+                        <li>Click "Create record".</li>
+                        <li><strong>For the root domain (`yourdomain.com`):</strong> Leave the "Record name" blank, select `A` as the record type, and paste your server's <strong class="text-green-400">Elastic IP address</strong> into the "Value" field. Click "Create records".</li>
+                        <li><strong>For the `www` subdomain:</strong> Click "Create record" again. Enter `www` for the "Record name", select `A` as the type, and paste the same <strong class="text-green-400">Elastic IP address</strong> into the "Value" field. Click "Create records".</li>
+                    </ol>
+                </div>
+            </section>
+
+            <section id="step8" class="guide-section">
+                <h2 class="text-3xl font-bold text-white mb-6">Step 8: Test and Troubleshoot</h2>
+                <div class="space-y-6">
+                    <p>Wait a few minutes for the DNS changes to propagate, then open a web browser and navigate to `http://yourdomain.com`. You should see the welcome page with a link to register. Try creating a new user.</p>
+                    <h3 class="text-xl font-semibold text-green-400">Common Issues:</h3>
+                    <ul class="list-disc list-inside mt-2 pl-6 space-y-1 bg-gray-800 p-4 rounded-lg">
+                        <li><strong>Site doesn't load (Connection Timed Out):</strong> Double-check that your EC2 Security Group allows HTTP (Port 80) traffic from "Anywhere". Also, ensure your domain's `A` record points to the correct Elastic IP.</li>
+                        <li><strong>Registration form gives an error:</strong> This often means your PHP script can't connect to the database. Double-check the credentials in `handle_register.php` to ensure they match what you created in Step 4. You can also check the Apache error log for more details: `sudo tail -f /var/log/httpd/error_log`.</li>
+                        <li><strong>"Duplicate entry" error on registration:</strong> This is good! It means your `UNIQUE` constraint on the `username` column is working correctly. Try registering with a different username.</li>
+                    </ul>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="text-center mt-16 text-gray-500">
+            <p>Guide created and formatted for the web.</p>
+        </footer>
+
+    </div>
+
+    <button id="to-top-btn" class="hidden fixed bottom-5 right-5 bg-green-600 hover:bg-green-700 text-white p-3 rounded-full shadow-lg transition-opacity duration-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+    </button>
+
+    <script>
+        const toTopBtn = document.getElementById('to-top-btn');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                toTopBtn.classList.remove('hidden');
+            } else {
+                toTopBtn.classList.add('hidden');
+            }
+        });
+        toTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+
+</body>
+</html>
