@@ -447,7 +447,7 @@
                 'great': 7,
                 'joyful': 8
             };
-            
+           
             // --- DOM ELEMENTS ---
             const themeToggle = document.getElementById('theme-toggle');
             const inspirationGrid = document.getElementById('inspiration-grid');
@@ -491,7 +491,7 @@ const startTimer = () => {
         updateTimerDisplay();
         if (timeLeft <= 0) {
             clearInterval(meditationTimer);
-            alert('Meditation complete!');
+            console.log('Meditation complete!');
             startBtn.textContent = 'Done!';
         }
     }, 1000);
@@ -564,7 +564,7 @@ const saveCbtData = () => {
     document.getElementById('cbt-challenge').value = '';
     document.getElementById('cbt-behavior').value = '';
     
-    alert('CBT entry saved!');
+    console.log('CBT entry saved!');
     renderCbtLog();
 };
 
@@ -599,6 +599,7 @@ document.getElementById('save-cbt-entry').addEventListener('click', saveCbtData)
 // renderCbtLog();
             inspirationGrid.addEventListener('click', (e) => {
                 const box = e.target.closest('.inspiration-box');
+
                 if (!box) return;
                 
                 currentInspirationIndex = parseInt(box.dataset.index);
@@ -628,7 +629,8 @@ document.getElementById('save-cbt-entry').addEventListener('click', saveCbtData)
                     const reader = new FileReader();
                     reader.onload = (event) => {
                         inspirationData[currentInspirationIndex] = { type: 'image', content: event.target.result };
-                        saveAndRenderInspiration();
+                        saveAndRenderInspiration();                console.log(saveAndRenderInspiration());
+
                     };
                     reader.readAsDataURL(file);
                 }
@@ -691,21 +693,24 @@ document.getElementById('save-cbt-entry').addEventListener('click', saveCbtData)
                     health: healthLog,
                     notes: notesInput.value,
                 };
-                
+
                 localStorage.setItem('mindTrackDailyData', JSON.stringify(dailyData));
-                alert('Daily Check-in saved!');
+                console.log(`Saving daily check-in for ${dateString}:`, JSON.stringify(dailyData));
+
+                console.log('Daily Check-in saved!');
                 renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
                 renderCharts();
             };
-            
-            const saveJournalData = () => {
+                const saveJournalData = () => {
                 const entryText = journalEntryInput.value.trim();
-                if (!entryText) { alert('Journal entry cannot be empty.'); return; }
+                if (!entryText) { console.log('Journal entry cannot be empty.'); return; }
                 const timestamp = new Date().toISOString();
                 journalData[timestamp] = entryText;
                 localStorage.setItem('mindTrackJournalData', JSON.stringify(journalData));
                 journalEntryInput.value = '';
-                alert('Journal entry saved!');
+                console.log('Journal entry saved!');
+                console.log('Saving journal data:', JSON.stringify(journalData));
+
                 renderJournal();
             };
 
@@ -725,6 +730,7 @@ document.getElementById('save-cbt-entry').addEventListener('click', saveCbtData)
                     if (data.mood) document.querySelector(`.mood-option[data-mood="${data.mood}"]`)?.classList.add('selected');
                     if (data.health) {
                         for (const key in data.health) {
+
                             const cb = document.getElementById(key);
                             if (cb) cb.checked = data.health[key];
                         }
@@ -794,7 +800,7 @@ document.getElementById('save-cbt-entry').addEventListener('click', saveCbtData)
                 const textColor = getComputedStyle(document.body).getPropertyValue('--text-color');
                 const borderColor = getComputedStyle(document.body).getPropertyValue('--border-color');
                 const sortedDates = Object.keys(dailyData).sort((a, b) => new Date(a) - new Date(b));
-
+            
                 const chartOptions = {
                     responsive: true, maintainAspectRatio: false,
                     scales: { y: { beginAtZero: true, ticks: { color: textColor, stepSize: 1 }, grid: { color: borderColor } }, x: { ticks: { color: textColor }, grid: { color: borderColor } } },
@@ -865,7 +871,7 @@ document.getElementById('save-cbt-entry').addEventListener('click', saveCbtData)
             showNewQuote();
             renderInspirationBoard();
         });
-
+     
     </script>
 </body>
 </html>
