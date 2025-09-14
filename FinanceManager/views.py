@@ -104,7 +104,7 @@ def register(request):
 @login_required
 def get_categories(request, transaction_type):
     categories = Category.objects.filter(category_type=transaction_type)
-    categories_data = [{"id": category.id, "name": category.name} for category in categories]
+    categories_data = [{"id": category, "name": category.name} for category in categories]
     return JsonResponse({"categories": categories_data})
 
 

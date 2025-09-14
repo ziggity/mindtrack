@@ -36,18 +36,21 @@ class Transaction(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return f"{self.category.category_type.capitalize()} - {self.amount}"
+        category_type = self.category.category_type.capitalize() if self.category else "No Category"
+        return f"{category_type} - {self.amount}"
 
 class UserBalance(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    from decimal import Decimal
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
 
     def update_balance(self, transaction):
         self.recalculate_balance()
         self.save()
 
     def recalculate_balance(self):
-        self.balance = sum(transaction.amount if transaction.transaction_type == 'income' else -transaction.amount for transaction in self.user.transaction_set.all())
+        transactions = Transaction.objects.filter(user=self.user)
+        self.balance = sum(transaction.amount if transaction.transaction_type == 'income' else -transaction.amount for transaction in transactions)
         self.save()
 
     def __str__(self):
