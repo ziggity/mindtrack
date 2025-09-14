@@ -1,5 +1,5 @@
 # Capstone 
-## Video Demo: [[YouTube Video Demo: ](https://www.youtube.com/watch?v=WH8waNIYepg&list=PLw8uXH0FO69IoGQHcGWT_5T4ghWZL8YIy)]
+## Video Demo: [[Finance Manager YouTube Video Demo: ](https://www.youtube.com/watch?v=WH8waNIYepg&list=PLw8uXH0FO69IoGQHcGWT_5T4ghWZL8YIy)]
 ## Project Screenshots
 
 ### Dashboard
