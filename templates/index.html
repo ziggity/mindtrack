@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MindTrack</title>
+  <style>
+    /* Default Theme (MindTrack Blue) */
+    :root {
+      --dark-color: #10375d;
+      --mid-color: #05647a;
+      --accent-color: #6db8bb;
+      --light-bg: #e0e2d5;
+      --neutral-grey: #869684;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: var(--light-bg);
+      color: var(--dark-color);
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation Bar */
+    .topnav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      padding: 15px 0;
+      z-index: 1000;
+      background-color: var(--accent-color); /* Main menu background */
+    }
+
+    .topnav a {
+      color: var(--light-bg);
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 15px;
+      transition: color 0.3s, background-color 0.3s;
+      background-color: var(--accent-color);
+      border-radius: 5px;
+    }
+
+    .topnav a:hover {
+      background-color: var(--mid-color);
+    }
+
+    /* Safety Plan menu link remains dark */
+    .topnav a#safety-link {
+      font-weight: bolder;
+      background-color: var(--dark-color);
+    }
+
+    /* Page Sections */
+    section {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+      padding: 100px 20px 50px 20px;
+      min-height: 100vh;
+    }
+
+    section.active {
+      display: block;
+      opacity: 1;
+    }
+
+    h1, h2 {
+      margin-bottom: 15px;
+    }
+
+    /* Buttons */
+    button {
+      padding: 8px 12px;
+      background-color: var(--mid-color);
+      color: var(--light-bg);
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    button:hover {
+      background-color: var(--accent-color);
+    }
+
+    /* Inputs */
+    input, textarea, select {
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid var(--neutral-grey);
+      width: 100%;
+      margin: 5px 0 15px 0;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    /* Cards */
+    .card {
+      background-color: var(--light-bg);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 15px 0;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Safety Plan card darker */
+    .safety-card {
+      background-color: var(--accent-color);
+      color: var(--dark-color);
+    }
+
+    /* Mood Emojis */
+    .emoji {
+      font-size: 2em;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    /* Mood Dashboard */
+    .dashboard {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .dashboard div {
+      background-color: var(--mid-color);
+      color: var(--light-bg);
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    /* Journal */
+    .journal-entry {
+      margin-bottom: 15px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .topnav {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <div class="topnav">
+    <a href="#home" data-page="home">Home</a>
+    <a href="#checkin" data-page="checkin">Check-In</a>
+    <a href="#dashboard" data-page="dashboard">MindTrack Dashboard</a>
+    <a href="#journal" data-page="journal">Journal</a>
+    <a href="#resources" data-page="resources">Resources</a>
+    <a href="#safety" data-page="safety" id="safety-link">Safety Plan</a>
+    <a href="#settings" data-page="settings">Settings</a>
+  </div>
+
+  <!-- Pages -->
+  <section id="home" class="active">
+    <div class="card">
+      <h1>Welcome to MindTrack</h1>
+      <p>MindTrack helps you monitor your mental health, track moods, and maintain a personal journal. Use the menu above to navigate through different tools and resources to support your well-being.</p>
+    </div>
+  </section>
+
+  <section id="checkin">
+    <div class="card">
+      <h1>Check-In</h1>
+      <p>Select your current mood:</p>
+      <div>
+        <span class="emoji">😃</span>
+        <span class="emoji">🙂</span>
+        <span class="emoji">😐</span>
+        <span class="emoji">😔</span>
+        <span class="emoji">😢</span>
+      </div>
+      <label for="sleep">Hours of Sleep:</label>
+      <input type="number" id="sleep" min="0" max="24" placeholder="e.g., 7">
+      <label for="notes">Additional Notes:</label>
+      <textarea id="notes" rows="4" placeholder="Describe external factors affecting your mood..."></textarea>
+      <button>Save Check-In</button>
+    </div>
+  </section>
+
+  <section id="dashboard">
+    <div class="card">
+      <h1>MindTrack Dashboard</h1>
+      <p>Here’s a summary of your past mood check-ins and overall emotional trends.</p>
+      <div class="dashboard">
+        <div>Average Mood: 🙂</div>
+        <div>Mood Summary Chart Placeholder</div>
+        <div>Sleep Summary: 7.5 hours avg</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="journal">
+    <div class="card">
+      <h1>Journal</h1>
+      <p>Write down your thoughts and feelings. Today's date is auto-included.</p>
+      <textarea rows="6" placeholder="Start writing..."></textarea>
+      <button>Save Entry</button>
+    </div>
+  </section>
+
+  <section id="resources">
+    <div class="card">
+      <h1>Resources</h1>
+      <p>Crisis Hotlines:</p>
+      <ul>
+        <li>National Suicide Prevention Lifeline: 1-800-273-TALK (8255)</li>
+        <li>988 Suicide & Crisis Lifeline: 988</li>
+        <li>Substance Abuse and Mental Health Services Administration (SAMHSA): 1-800-662-4357</li>
+      </ul>
+      <p>Additional Resources:</p>
+      <ul>
+        <li>Mental Health America: <a href="https://www.mhanational.org/">https://www.mhanational.org/</a></li>
+        <li>National Alliance on Mental Illness: <a href="https://www.nami.org/">https://www.nami.org/</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="safety">
+    <div class="card safety-card">
+      <h1>Safety Plan</h1>
+      <p>Identify your triggers, emotions, and coping strategies. Include people to reach out to when needed.</p>
+      <label for="triggers">Triggers:</label>
+      <textarea id="triggers" rows="2" placeholder="Things that trigger stress or anxiety"></textarea>
+      <label for="emotions">Emotions:</label>
+      <textarea id="emotions" rows="2" placeholder="Describe your current emotions"></textarea>
+      <label for="coping">Coping Plans:</label>
+      <textarea id="coping" rows="2" placeholder="Strategies to manage your emotions"></textarea>
+      <label for="supports">Supports:</label>
+      <textarea id="supports" rows="2" placeholder="People or resources to reach out to"></textarea>
+      <button>Save Safety Plan</button>
+    </div>
+  </section>
+
+  <section id="settings">
+    <div class="card">
+      <h1>Settings</h1>
+      <p>Adjust your MindTrack preferences:</p>
+      <label for="name">Name:</label>
+      <input type="text" id="name" placeholder="Your name">
+      <label for="dob">Date of Birth (DOB):</label>
+      <input type="date" id="dob">
+      <label for="color">Change Color Theme:</label>
+      <select id="color">
+        <option value="blue">MindTrack Theme</option>
+        <option value="lavender">Lavender Haze</option>
+        <option value="red">Radient Rise</option>
+        <option value="green">Botanic Spark</option>
+      </select>
+      <label for="profile">Profile Picture:</label>
+      <input type="file" id="profile">
+      <button>Save Settings</button>
+    </div>
+  </section>
+
+  <script>
+    const links = document.querySelectorAll('.topnav a');
+    const sections = document.querySelectorAll('section');
+    let activeSection = document.querySelector('section.active');
+
+    // Page transitions
+    links.forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const targetId = link.getAttribute('data-page');
+        const targetSection = document.getElementById(targetId);
+
+        if(activeSection === targetSection) return;
+
+        activeSection.style.opacity = 0;
+        setTimeout(() => {
+          activeSection.classList.remove('active');
+          targetSection.classList.add('active');
+          targetSection.style.opacity = 0;
+          setTimeout(() => {
+            targetSection.style.opacity = 1;
+            activeSection = targetSection;
+          }, 50);
+        }, 300);
+
+        window.scrollTo(0, 0);
+      });
+    });
+
+    // Mood selection
+    const emojis = document.querySelectorAll('.emoji');
+    emojis.forEach(e => {
+      e.addEventListener('click', () => {
+        emojis.forEach(em => em.style.transform = 'scale(1)');
+        e.style.transform = 'scale(1.5)';
+      });
+    });
+
+    // Theme Switcher
+    const themeSelect = document.getElementById('color');
+    themeSelect.addEventListener('change', e => {
+      const theme = e.target.value;
+      switch(theme){
+        case 'blue':
+          setTheme('#10375d','#05647a','#6db8bb','#e0e2d5','#869684');
+          break;
+        case 'lavender':
+          setTheme('#483f6b','#7b749e','#c295c2','#c9cbe2','#9860a4');
+          break;
+        case 'red':
+          setTheme('#8e0f19','#ce281e','#fda600','#f8f9e4','#6b850c');
+          break;
+        case 'green':
+          setTheme('#072a16','#2d6b22','#8ab446','#e0e2d5','#d3e29d');
+          break;
+      }
+    });
+
+    function setTheme(dark, mid, accent, light, neutral){
+      document.documentElement.style.setProperty('--dark-color', dark);
+      document.documentElement.style.setProperty('--mid-color', mid);
+      document.documentElement.style.setProperty('--accent-color', accent);
+      document.documentElement.style.setProperty('--light-bg', light);
+      document.documentElement.style.setProperty('--neutral-grey', neutral);
+
+      // Update nav bar colors dynamically
+      document.querySelector('.topnav').style.backgroundColor = accent;
+      document.querySelector('#safety-link').style.backgroundColor = dark;
+
+      document.querySelectorAll('.topnav a').forEach(link => {
+        if(link.id !== 'safety-link'){
+          link.style.backgroundColor = accent;
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
