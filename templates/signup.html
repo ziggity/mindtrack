@@ -1,4 +1,5 @@
-{% block title %}Login{% endblock %}
+{% extends "layout.html" %}
+{% block title %}Index{% endblock %}
 {% block head %}
 <!-- Pages -->
 {% endblock %}
@@ -8,7 +9,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MindTrack - Login</title>
+  <title>MindTrack - Sign Up</title>
   <style>
     :root {
       --dark-color: #10375d;
@@ -78,13 +79,13 @@
 </head>
 <body>
   <div class="card">
-    <h1>Login</h1>
+    <h1>Sign Up</h1>
     <form method="POST">
-      <input type="text" name="username" placeholder="Enter Username" required>
-      <input type="password" name="password" placeholder="Enter Password" required>
-      <button type="submit">Login</button>
+      <input type="text" name="username" placeholder="Choose Username" required>
+      <input type="password" name="password" placeholder="Choose Password" required>
+      <button type="submit">Sign Up</button>
     </form>
-    <p>Don’t have an account? <a href="{{ url_for('signup') }}">Sign up here</a></p>
+    <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
   </div>
 </body>
 </html>
