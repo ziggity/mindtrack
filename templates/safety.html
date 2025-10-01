@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+<!-- Pages -->
+ <section id="safety">
+    <div class="card safety-card">
+      <h1>Safety Plan</h1>
+      <p>Identify your triggers, emotions, and coping strategies. Include people to reach out to when needed.</p>
+      <label for="triggers">Triggers:</label>
+      <textarea id="triggers" rows="2" placeholder="Things that trigger stress or anxiety"></textarea>
+      <label for="emotions">Emotions:</label>
+      <textarea id="emotions" rows="2" placeholder="Describe your current emotions"></textarea>
+      <label for="coping">Coping Plans:</label>
+      <textarea id="coping" rows="2" placeholder="Strategies to manage your emotions"></textarea>
+      <label for="supports">Supports:</label>
+      <textarea id="supports" rows="2" placeholder="People or resources to reach out to"></textarea>
+      <button>Save Safety Plan</button>
+    </div>
+  </section>
+{% endblock %}
+{% block content %}
+{% endblock %}
