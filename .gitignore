@@ -1,4 +1,7 @@
 ./venv/
 ./.env
 ./awsvenv/
-
+./instance/
+*.db
+*.pyc
+__pycache__/
