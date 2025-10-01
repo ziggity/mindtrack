@@ -1,83 +1,9 @@
 {% extends "layout.html" %}
-{% block title %}Index{% endblock %}
+{% block title %}MindTrack - Sign Up{% endblock %}
 {% block head %}
-<!-- Pages -->
 {% endblock %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MindTrack - Sign Up</title>
-  <style>
-    :root {
-      --dark-color: #10375d;
-      --mid-color: #05647a;
-      --accent-color: #6db8bb;
-      --light-bg: #e0e2d5;
-      --neutral-grey: #869684;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background-color: var(--light-bg);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .card {
-      background-color: var(--light-bg);
-      border-radius: 10px;
-      padding: 30px;
-      width: 350px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-      text-align: center;
-    }
-
-    h1 {
-      margin-bottom: 20px;
-      color: var(--dark-color);
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid var(--neutral-grey);
-      border-radius: 5px;
-    }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      background-color: var(--mid-color);
-      color: var(--light-bg);
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: var(--accent-color);
-    }
-
-    p {
-      margin-top: 15px;
-    }
-
-    a {
-      color: var(--mid-color);
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<body>
+<!-- Pages -->
   <div class="card">
     <h1>Sign Up</h1>
     <form method="POST">
@@ -87,6 +13,4 @@
     </form>
     <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
   </div>
-</body>
-</html>
 {% endblock %}
