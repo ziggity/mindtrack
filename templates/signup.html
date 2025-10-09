@@ -1,16 +1,17 @@
-{% extends "layout.html" %}
-{% block title %}MindTrack - Sign Up{% endblock %}
-{% block head %}
-{% endblock %}
-{% block content %}
 <!-- Pages -->
-  <div class="card">
-    <h1>Sign Up</h1>
-    <form method="POST">
-      <input type="text" name="username" placeholder="Choose Username" required>
-      <input type="password" name="password" placeholder="Choose Password" required>
-      <button type="submit">Sign Up</button>
-    </form>
-    <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
-  </div>
-{% endblock %}
+<div class="card">
+  <h1>Sign Up</h1>
+  <form method="POST">
+    <input type="text" name="username" placeholder="Choose Username" required />
+    <input
+      type="password"
+      name="password"
+      placeholder="Choose Password"
+      required
+    />
+    <button type="submit">Sign Up</button>
+  </form>
+  <p>
+    Already have an account? <a href="{{ url_for('login') }}">Login here</a>
+  </p>
+</div>

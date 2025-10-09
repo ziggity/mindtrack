@@ -1,18 +1,128 @@
-{% extends "layout.html" %}
-{% block title %}MindTrack - Dashboard{% endblock %}
-{% block head %}
-{% endblock %}
-{% block content %}
-<!-- Pages -->
- <section id="dashboard">
-    <div class="card">
-      <h1>MindTrack Dashboard</h1>
-      <p>Here’s a summary of your past mood check-ins and overall emotional trends.</p>
-      <div class="dashboard">
-        <div>Average Mood: 🙂</div>
-        <div>Mood Summary Chart Placeholder</div>
-        <div>Sleep Summary: 7.5 hours avg</div>
-      </div>
+<header class="navbar">
+  <div class="brand">🧠 MindTrack</div>
+  <nav class="nav-links">
+    <a href="home.html">🏠 Home</a>
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="journal.html">📓 Journal</a>
+    <a href="check_in.html">🙂 Check-In</a>
+    <a href="resources.html">📚 Resources</a>
+    <a href="safety.html">🛟 Safety</a>
+    <a href="login.html">🔑 Login</a>
+    <a href="signup.html">🧾 Sign Up</a>
+  </nav>
+</header>
+
+<section id="dashboard" class="container">
+  <div class="card">
+    <h1>📊 Dashboard</h1>
+
+    <div id="stats">
+      <p>📓 Total journal entries: <strong id="journalCount">0</strong></p>
+      <p>📝 Last journal entry: <span id="lastJournal">None</span></p>
+      <p>🙂 Total check-ins: <strong id="checkinCount">0</strong></p>
+      <p>🕒 Last check-in: <span id="lastCheckin">None</span></p>
     </div>
-  </section>
-{% endblock %}
+
+    <button id="clearData" style="margin-top: 12px">🧹 Clear Local Data</button>
+    <p id="clearMsg" style="margin-top: 8px; color: green; display: none">
+      Local data cleared ✅
+    </p>
+  </div>
+</section>
+
+<script>
+  const journalKey = "journalEntries";
+  const checkinKey = "checkIns";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    refreshStats();
+
+    // Clear data
+    const clearBtn = document.getElementById("clearData");
+    clearBtn.addEventListener("click", () => {
+      removeData(journalKey);
+      removeData(checkinKey);
+      refreshStats();
+      const msg = document.getElementById("clearMsg");
+      msg.style.display = "block";
+      setTimeout(() => {
+        msg.style.display = "none";
+      }, 1500);
+    });
+
+    // Refresh when returning to this page/tab
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) refreshStats();
+    });
+
+    // Refresh when another tab updates localStorage
+    window.addEventListener("storage", (e) => {
+      if (e.key === journalKey || e.key === checkinKey) {
+        refreshStats();
+      }
+    });
+
+    // OPTIONAL: Auto-refresh every 3 seconds
+    // setInterval(refreshStats, 3000);
+  });
+
+  // --- Core stats logic ---
+  function refreshStats() {
+    const journals = getData(journalKey) || [];
+    const checks = getData(checkinKey) || [];
+
+    setText("journalCount", journals.length);
+    setText("checkinCount", checks.length);
+
+    // Last journal entry
+    if (journals.length) {
+      const last = journals[journals.length - 1];
+      setHTML(
+        "lastJournal",
+        `📝 <strong>${last.date}</strong> — ${truncate(last.text, 120)}`
+      );
+    } else {
+      setText("lastJournal", "None");
+    }
+
+    // Last check-in
+    if (checks.length) {
+      const last = checks[checks.length - 1];
+      const detail = `🙂 Mood: ${last.mood}${
+        last.notes ? " — " + truncate(last.notes, 120) : ""
+      }`;
+      setHTML("lastCheckin", `🕒 <strong>${last.date}</strong> — ${detail}`);
+    } else {
+      setText("lastCheckin", "None");
+    }
+  }
+
+  // --- Helper functions ---
+  function truncate(s, n) {
+    if (!s) return "";
+    return s.length > n ? s.slice(0, n) + "..." : s;
+  }
+
+  function setText(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+
+  function setHTML(id, html) {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  }
+
+  // LocalStorage helpers (in case not from layout)
+  function getData(key) {
+    try {
+      return JSON.parse(localStorage.getItem(key) || "[]");
+    } catch {
+      return [];
+    }
+  }
+
+  function removeData(key) {
+    localStorage.removeItem(key);
+  }
+</script>

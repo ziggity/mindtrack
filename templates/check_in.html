@@ -1,25 +1,171 @@
-{% extends "layout.html" %}
-{% block title %}Index{% endblock %}
-{% block head %}
-{% endblock %}
-{% block content %}
-<!-- Pages -->
- <section id="checkin">
-    <div class="card">
-      <h1>Check-In</h1>
-      <p>Select your current mood:</p>
-      <div>
-        <span class="emoji">😃</span>
-        <span class="emoji">🙂</span>
-        <span class="emoji">😐</span>
-        <span class="emoji">😔</span>
-        <span class="emoji">😢</span>
-      </div>
-      <label for="sleep">Hours of Sleep:</label>
-      <input type="number" id="sleep" min="0" max="24" placeholder="e.g., 7">
-      <label for="notes">Additional Notes:</label>
-      <textarea id="notes" rows="4" placeholder="Describe external factors affecting your mood..."></textarea>
-      <button>Save Check-In</button>
-    </div>
-  </section>
-{% endblock %}
+<header class="navbar">
+  <div class="brand">🧠 MindTrack</div>
+  <nav class="nav-links">
+    <a href="home.html">🏠 Home</a>
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="journal.html">📓 Journal</a>
+    <a href="check_in.html">🙂 Check-In</a>
+    <a href="resources.html">📚 Resources</a>
+    <a href="safety.html">🛟 Safety</a>
+    <a href="login.html">🔑 Login</a>
+    <a href="signup.html">🧾 Sign Up</a>
+  </nav>
+</header>
+
+<section id="checkin" class="container">
+  <div class="card">
+    <h1>Daily Check In</h1>
+
+    <form id="checkinForm">
+      <label for="mood">Mood</label>
+      <select id="mood">
+        <option value="">Select mood</option>
+        <option>🙂 Happy</option>
+        <option>😐 Neutral</option>
+        <option>😢 Sad</option>
+        <option>😰 Stressed</option>
+        <option>😟 Anxious</option>
+        <option>😴 Tired</option>
+      </select>
+
+      <label for="notes" style="display: block; margin-top: 8px">Notes</label>
+      <textarea id="notes" rows="4" placeholder="Add a note"></textarea>
+
+      <button type="submit" style="margin-top: 8px">Save Check In</button>
+    </form>
+
+    <hr />
+
+    <h2>History</h2>
+    <div id="checkinList"></div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("checkinForm");
+    const moodSelect = document.getElementById("mood");
+    const notesInput = document.getElementById("notes");
+    const listDiv = document.getElementById("checkinList");
+
+    // --- Load + migrate old items (add id if missing) ---
+    let all = getAll();
+    let migrated = false;
+    all = all.map((it) => {
+      if (!it.id) {
+        it.id = genId();
+        migrated = true;
+      }
+      return it;
+    });
+    if (migrated) setAll(all);
+
+    // render oldest -> newest so new ones appear at the bottom
+    all.forEach(renderRow);
+
+    // --- Save new check-in ---
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const mood = (moodSelect.value || "").trim();
+      const notes = (notesInput.value || "").trim();
+      if (!mood) return;
+
+      const item = {
+        id: genId(),
+        mood,
+        notes,
+        date: new Date().toLocaleString(),
+      };
+
+      const current = getAll();
+      current.push(item);
+      setAll(current);
+
+      renderRow(item); // append to bottom
+      moodSelect.value = "";
+      notesInput.value = "";
+    });
+
+    // --- Delete with event delegation ---
+    listDiv.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-id]");
+      if (!btn) return;
+      const id = btn.getAttribute("data-id");
+
+      const updated = getAll().filter((it) => it.id !== id);
+      setAll(updated);
+
+      const row = listDiv.querySelector(`.checkin-row[data-id="${id}"]`);
+      if (row) row.remove();
+    });
+
+    // --- Helpers (use localStorage directly so this works even without layout helpers) ---
+    function getAll() {
+      try {
+        return JSON.parse(localStorage.getItem("checkIns") || "[]");
+      } catch {
+        return [];
+      }
+    }
+    function setAll(arr) {
+      localStorage.setItem("checkIns", JSON.stringify(arr));
+    }
+    function genId() {
+      return String(Date.now()) + "-" + Math.random().toString(36).slice(2, 8);
+    }
+    function escapeHtml(s) {
+      return s.replace(
+        /[&<>"']/g,
+        (c) =>
+          ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+          }[c])
+      );
+    }
+
+    // --- Render a single row (with delete button) ---
+    function renderRow(item) {
+      const row = document.createElement("div");
+      row.className = "checkin-row";
+      row.dataset.id = item.id;
+      row.style.padding = "10px 0";
+      row.style.borderBottom = "1px solid #ddd";
+
+      const header = document.createElement("div");
+      header.style.display = "flex";
+      header.style.justifyContent = "space-between";
+      header.style.alignItems = "center";
+
+      const left = document.createElement("div");
+      left.innerHTML = `<strong>${item.date}</strong> — ${item.mood}`;
+
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "🗑️ Delete";
+      delBtn.setAttribute("data-id", item.id);
+      delBtn.style.background = "#e11d48";
+      delBtn.style.color = "#fff";
+      delBtn.style.border = "none";
+      delBtn.style.padding = "4px 10px";
+      delBtn.style.borderRadius = "4px";
+      delBtn.style.cursor = "pointer";
+
+      header.appendChild(left);
+      header.appendChild(delBtn);
+
+      const body = document.createElement("p");
+      body.style.margin = "8px 0 0";
+      if (item.notes) body.innerHTML = escapeHtml(item.notes);
+      else body.textContent = "";
+
+      row.appendChild(header);
+      row.appendChild(body);
+
+      // append to bottom (oldest at top, newest at bottom)
+      listDiv.appendChild(row);
+    }
+  });
+</script>
