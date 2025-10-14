@@ -1,202 +1,212 @@
-<!-- Pages -->
-<header class="navbar">
-  <div class="brand">🧠 MindTrack</div>
-  <nav class="nav-links">
-    <a href="home.html">🏠 Home</a>
-    <a href="dashboard.html">📊 Dashboard</a>
-    <a href="journal.html">📓 Journal</a>
-    <a href="check_in.html">🙂 Check-In</a>
-    <a href="resources.html">📚 Resources</a>
-    <a href="safety.html">🛟 Safety</a>
-    <a href="login.html">🔑 Login</a>
-    <a href="signup.html">🧾 Sign Up</a>
-  </nav>
-</header>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindTrack – Safety Plan</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<section id="safety">
-  <div class="card safety-card">
-    <h1>Safety Plan</h1>
-    <p>
-      Identify your triggers, emotions, and coping strategies. Include people to
-      reach out to when needed.
-    </p>
+  <body>
+    <!-- Navbar -->
+    <header class="navbar">
+      <div class="brand">🧠 MindTrack</div>
+      <nav class="nav-links">
+        <a href="home.html">🏠 Home</a>
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="journal.html">📓 Journal</a>
+        <a href="check_in.html">🙂 Check-In</a>
+        <a href="resources.html">📚 Resources</a>
+        <a href="safety.html" aria-current="page">🛟 Safety</a>
+        <a href="login.html">🔑 Login</a>
+        <a href="signup.html">🧾 Sign Up</a>
+      </nav>
+    </header>
 
-    <!-- Make the inputs a real form so Enter/Submit works -->
-    <form id="safetyForm">
-      <label for="triggers">Triggers:</label>
-      <textarea
-        id="triggers"
-        rows="2"
-        placeholder="Things that trigger stress or anxiety"
-      ></textarea>
+    <!-- Safety Section -->
+    <section id="safety">
+      <div class="container">
+        <div class="card">
+          <h1>🛟 Safety Plan</h1>
+          <p>
+            Identify your triggers, emotions, coping strategies, and people to
+            reach out to.
+          </p>
 
-      <label for="emotions">Emotions:</label>
-      <textarea
-        id="emotions"
-        rows="2"
-        placeholder="Describe your current emotions"
-      ></textarea>
+          <form id="safetyForm" class="form mt-3">
+            <label class="label" for="triggers">Triggers</label>
+            <textarea
+              id="triggers"
+              class="input input-multiline"
+              rows="2"
+              placeholder="Things that trigger stress or anxiety"
+            ></textarea>
 
-      <label for="coping">Coping Plans:</label>
-      <textarea
-        id="coping"
-        rows="2"
-        placeholder="Strategies to manage your emotions"
-      ></textarea>
+            <label class="label" for="emotions">Emotions</label>
+            <textarea
+              id="emotions"
+              class="input input-multiline"
+              rows="2"
+              placeholder="Describe your current emotions"
+            ></textarea>
 
-      <label for="supports">Supports:</label>
-      <textarea
-        id="supports"
-        rows="2"
-        placeholder="People or resources to reach out to"
-      ></textarea>
+            <label class="label" for="coping">Coping Plans</label>
+            <textarea
+              id="coping"
+              class="input input-multiline"
+              rows="2"
+              placeholder="Strategies to manage your emotions"
+            ></textarea>
 
-      <button type="submit" style="margin-top: 8px">Save Safety Plan</button>
-    </form>
+            <label class="label" for="supports">Supports</label>
+            <textarea
+              id="supports"
+              class="input input-multiline"
+              rows="2"
+              placeholder="People or resources to reach out to"
+            ></textarea>
 
-    <hr />
+            <button type="submit" class="btn mt-3">Save Safety Plan</button>
+          </form>
 
-    <h2>Saved Plans</h2>
-    <div id="plansList"></div>
-  </div>
-</section>
+          <h2 class="mt-4">Saved Plans</h2>
+          <div id="plansList" class="plans"></div>
+        </div>
+      </div>
+    </section>
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("safetyForm");
-    const triggers = document.getElementById("triggers");
-    const emotions = document.getElementById("emotions");
-    const coping = document.getElementById("coping");
-    const supports = document.getElementById("supports");
-    const listDiv = document.getElementById("plansList");
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("safetyForm");
+        const triggers = document.getElementById("triggers");
+        const emotions = document.getElementById("emotions");
+        const coping = document.getElementById("coping");
+        const supports = document.getElementById("supports");
+        const listDiv = document.getElementById("plansList");
 
-    // ---- Load + migrate old entries (add id if missing), render oldest -> newest
-    let all = getAll();
-    let migrated = false;
-    all = all.map((p) => {
-      if (!p.id) {
-        p.id = genId();
-        migrated = true;
-      }
-      return p;
-    });
-    if (migrated) setAll(all);
-    all.forEach(renderRow);
+        // Load + migrate
+        let all = getAll();
+        let migrated = false;
+        all = all.map((p) => {
+          if (!p.id) {
+            p.id = genId();
+            migrated = true;
+          }
+          return p;
+        });
+        if (migrated) setAll(all);
+        all.forEach(renderRow);
 
-    // ---- Save new plan
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const data = {
-        id: genId(),
-        date: new Date().toLocaleString(),
-        triggers: (triggers.value || "").trim(),
-        emotions: (emotions.value || "").trim(),
-        coping: (coping.value || "").trim(),
-        supports: (supports.value || "").trim(),
-      };
+        // Save new plan
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const data = {
+            id: genId(),
+            date: new Date().toLocaleString(),
+            triggers: triggers.value.trim(),
+            emotions: emotions.value.trim(),
+            coping: coping.value.trim(),
+            supports: supports.value.trim(),
+          };
+          if (
+            !data.triggers &&
+            !data.emotions &&
+            !data.coping &&
+            !data.supports
+          )
+            return;
 
-      // require at least one field
-      if (!data.triggers && !data.emotions && !data.coping && !data.supports)
-        return;
+          const current = getAll();
+          current.push(data);
+          setAll(current);
+          renderRow(data);
+          form.reset();
+        });
 
-      const current = getAll();
-      current.push(data);
-      setAll(current);
+        // Delete
+        listDiv.addEventListener("click", (e) => {
+          const btn = e.target.closest("button[data-id]");
+          if (!btn) return;
+          const id = btn.dataset.id;
+          const updated = getAll().filter((p) => p.id !== id);
+          setAll(updated);
+          const row = listDiv.querySelector(`.plan-row[data-id="${id}"]`);
+          if (row) {
+            row.classList.add("fade-out");
+            row.addEventListener("animationend", () => row.remove(), {
+              once: true,
+            });
+          }
+        });
 
-      renderRow(data); // append to bottom
-      triggers.value = emotions.value = coping.value = supports.value = "";
-    });
+        // Helpers
+        function getAll() {
+          try {
+            return JSON.parse(localStorage.getItem("safetyPlans") || "[]");
+          } catch {
+            return [];
+          }
+        }
+        function setAll(arr) {
+          localStorage.setItem("safetyPlans", JSON.stringify(arr));
+        }
+        function genId() {
+          return Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+        }
+        function escapeHtml(s) {
+          return s.replace(
+            /[&<>\"']/g,
+            (c) =>
+              ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;",
+              }[c])
+          );
+        }
 
-    // ---- Delete via event delegation
-    listDiv.addEventListener("click", (e) => {
-      const btn = e.target.closest("button[data-id]");
-      if (!btn) return;
-      const id = btn.getAttribute("data-id");
+        function renderRow(plan) {
+          const row = document.createElement("div");
+          row.className = "plan-row fade-in";
+          row.dataset.id = plan.id;
 
-      const updated = getAll().filter((p) => p.id !== id);
-      setAll(updated);
+          const header = document.createElement("div");
+          header.className = "plan-header";
 
-      const row = listDiv.querySelector(`.plan-row[data-id="${id}"]`);
-      if (row) row.remove();
-    });
+          const dateEl = document.createElement("div");
+          dateEl.className = "plan-date";
+          dateEl.innerHTML = `<strong>${plan.date}</strong>`;
 
-    // ---- Helpers (use localStorage directly so it works with or without global helpers)
-    function getAll() {
-      try {
-        return JSON.parse(localStorage.getItem("safetyPlans") || "[]");
-      } catch {
-        return [];
-      }
-    }
-    function setAll(arr) {
-      localStorage.setItem("safetyPlans", JSON.stringify(arr));
-    }
-    function genId() {
-      return String(Date.now()) + "-" + Math.random().toString(36).slice(2, 8);
-    }
-    function escapeHtml(s) {
-      return s.replace(
-        /[&<>"']/g,
-        (c) =>
-          ({
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#39;",
-          }[c])
-      );
-    }
+          const delBtn = document.createElement("button");
+          delBtn.className = "btn btn-danger btn-sm";
+          delBtn.textContent = "🗑️ Delete";
+          delBtn.dataset.id = plan.id;
 
-    // ---- Render one row (date + fields + delete)
-    function renderRow(plan) {
-      const row = document.createElement("div");
-      row.className = "plan-row";
-      row.dataset.id = plan.id;
-      row.style.padding = "10px 0";
-      row.style.borderBottom = "1px solid #ddd";
+          header.append(dateEl, delBtn);
 
-      const header = document.createElement("div");
-      header.style.display = "flex";
-      header.style.justifyContent = "space-between";
-      header.style.alignItems = "center";
+          const body = document.createElement("div");
+          body.className = "plan-body";
+          body.innerHTML = [
+            plan.triggers
+              ? `<p><strong>Triggers:</strong> ${escapeHtml(plan.triggers)}</p>`
+              : "",
+            plan.emotions
+              ? `<p><strong>Emotions:</strong> ${escapeHtml(plan.emotions)}</p>`
+              : "",
+            plan.coping
+              ? `<p><strong>Coping:</strong> ${escapeHtml(plan.coping)}</p>`
+              : "",
+            plan.supports
+              ? `<p><strong>Supports:</strong> ${escapeHtml(plan.supports)}</p>`
+              : "",
+          ].join("");
 
-      const left = document.createElement("div");
-      left.innerHTML = `<strong>${plan.date}</strong>`;
-
-      const delBtn = document.createElement("button");
-      delBtn.textContent = "🗑️ Delete";
-      delBtn.setAttribute("data-id", plan.id);
-      delBtn.style.background = "#e11d48";
-      delBtn.style.color = "#fff";
-      delBtn.style.border = "none";
-      delBtn.style.padding = "4px 10px";
-      delBtn.style.borderRadius = "4px";
-      delBtn.style.cursor = "pointer";
-
-      header.appendChild(left);
-      header.appendChild(delBtn);
-
-      const body = document.createElement("div");
-      body.style.marginTop = "8px";
-      body.innerHTML = [
-        plan.triggers
-          ? `<p><strong>Triggers:</strong> ${escapeHtml(plan.triggers)}</p>`
-          : "",
-        plan.emotions
-          ? `<p><strong>Emotions:</strong> ${escapeHtml(plan.emotions)}</p>`
-          : "",
-        plan.coping
-          ? `<p><strong>Coping:</strong> ${escapeHtml(plan.coping)}</p>`
-          : "",
-        plan.supports
-          ? `<p><strong>Supports:</strong> ${escapeHtml(plan.supports)}</p>`
-          : "",
-      ].join("");
-
-      row.appendChild(header);
-      row.appendChild(body);
-      listDiv.appendChild(row); // append to bottom
-    }
-  });
-</script>
+          row.append(header, body);
+          listDiv.appendChild(row);
+        }
+      });
+    </script>
+  </body>
+</html>

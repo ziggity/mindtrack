@@ -1,0 +1,406 @@
+/* ========= Tokens ========= */
+:root {
+  /* Colors: soft wellness */
+  --bg: #f7f6fb;
+  --surface: #ffffff;
+  --panel: #f1eef6;
+  --text: #222222;
+  --muted: #6b7280;
+  --brand: #6c63ff; /* violet */
+  --accent: #2a9d8f; /* teal */
+  --border: #e6e6ef;
+  --shadow: 0 10px 30px rgba(17, 24, 39, 0.1);
+
+  /* Sizing and rhythm */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+
+  --space-1: 6px;
+  --space-2: 10px;
+  --space-3: 14px;
+  --space-4: 18px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-8: 48px;
+
+  /* Typography */
+  --font: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    Helvetica, Arial, sans-serif;
+  --fs-sm: 14px;
+  --fs-md: 16px;
+  --fs-lg: 20px;
+  --fs-xl: 28px;
+  --fs-2xl: 36px;
+
+  /* Fixed textarea height */
+  --textarea-h: 180px;
+}
+
+/* Dark mode auto */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f172a;
+    --surface: #111827;
+    --panel: #1f2937;
+    --text: #e5e7eb;
+    --muted: #9aa4b2;
+    --brand: #8b8bff;
+    --accent: #49c6b2;
+    --border: #2a3342;
+    --shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* ========= Base ========= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: var(--fs-md);
+  color: var(--text);
+  background: radial-gradient(
+      1200px 600px at 10% 0%,
+      rgba(108, 99, 255, 0.08),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 500px at 90% 10%,
+      rgba(42, 157, 143, 0.1),
+      transparent 60%
+    ),
+    var(--bg);
+}
+
+/* Links + focus states */
+a {
+  color: var(--brand);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--brand) 55%, transparent);
+  outline-offset: 2px;
+}
+
+/* ========= Navbar ========= */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: saturate(140%) blur(8px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.brand {
+  font-weight: 800;
+  font-size: var(--fs-lg);
+  color: var(--brand);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.nav-links a {
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 999px;
+  transition: background-color 120ms ease, color 120ms ease, transform 80ms ease;
+  white-space: nowrap;
+}
+.nav-links a:hover {
+  background: var(--panel);
+  transform: translateY(-1px);
+}
+.nav-links a.active {
+  background: color-mix(in srgb, var(--brand) 16%, var(--panel));
+  color: color-mix(in srgb, var(--brand) 80%, white);
+}
+
+/* ========= Page layout ========= */
+section {
+  padding: var(--space-8) var(--space-6);
+}
+
+#home .card {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+/* ========= Card ========= */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: clamp(var(--space-5), 4vw, var(--space-8));
+  box-shadow: var(--shadow);
+  transition: transform 140ms ease, box-shadow 160ms ease,
+    border-color 160ms ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--brand) 28%, var(--border));
+}
+
+/* ========= Typography ========= */
+h1,
+h2,
+h3 {
+  margin: 0 0 var(--space-3);
+  line-height: 1.2;
+}
+h1 {
+  font-size: clamp(var(--fs-xl), 3.2vw, var(--fs-2xl));
+}
+p {
+  margin: 0 0 var(--space-4);
+  color: var(--muted);
+  font-size: var(--fs-lg);
+}
+
+/* ========= Helpers ========= */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.center {
+  text-align: center;
+}
+
+/* ========= Button preset ========= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  background: var(--brand);
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(108, 99, 255, 0.25);
+  transition: transform 80ms ease, filter 120ms ease, box-shadow 160ms ease;
+}
+.btn:hover {
+  filter: brightness(1.05);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* ========= Dashboard ========= */
+#dashboard {
+  min-height: 100vh;
+  background: radial-gradient(
+      1200px 600px at 10% 0%,
+      rgba(108, 99, 255, 0.05),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 500px at 90% 10%,
+      rgba(42, 157, 143, 0.07),
+      transparent 60%
+    ),
+    var(--bg);
+}
+
+/* ========= Journal, Check-In, Safety ========= */
+#journal,
+#checkin,
+#safety {
+  padding: var(--space-8) var(--space-6);
+  min-height: 100vh;
+  background: radial-gradient(
+      1200px 600px at 10% 0%,
+      rgba(108, 99, 255, 0.05),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 500px at 90% 10%,
+      rgba(42, 157, 143, 0.07),
+      transparent 60%
+    ),
+    var(--bg);
+}
+#journal .card,
+#checkin .card,
+#safety .card {
+  max-width: 900px;
+  margin: 0 auto;
+}
+#journal h1,
+#checkin h1,
+#safety h1 {
+  color: var(--brand);
+}
+
+/* ========= Fixed-size textareas ========= */
+#journal textarea#entryText,
+#checkin textarea#notes,
+#safety textarea#triggers,
+#safety textarea#emotions,
+#safety textarea#coping,
+#safety textarea#supports {
+  height: var(--textarea-h);
+  min-height: var(--textarea-h);
+  max-height: var(--textarea-h);
+  resize: none;
+  overflow: auto;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font-size: var(--fs-md);
+  line-height: 1.5;
+}
+#journal textarea#entryText:focus,
+#checkin textarea#notes:focus,
+#safety textarea#triggers:focus,
+#safety textarea#emotions:focus,
+#safety textarea#coping:focus,
+#safety textarea#supports:focus {
+  outline: 2px solid color-mix(in srgb, var(--brand) 50%, transparent);
+  background: color-mix(in srgb, var(--brand) 4%, var(--panel));
+}
+
+/* ========= Login + Signup ========= */
+#login,
+#signup {
+  padding: var(--space-8) var(--space-6);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+      1200px 600px at 10% 0%,
+      rgba(108, 99, 255, 0.05),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 500px at 90% 10%,
+      rgba(42, 157, 143, 0.07),
+      transparent 60%
+    ),
+    var(--bg);
+}
+
+/* Card layout */
+.login-card,
+.signup-card {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+  padding: var(--space-6) var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  transition: transform 140ms ease, box-shadow 160ms ease;
+}
+.login-card:hover,
+.signup-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Headings */
+.login-card h1,
+.signup-card h1 {
+  color: var(--brand);
+  margin-bottom: var(--space-3);
+}
+
+/* Input fields — ✨ New Modern Look ✨ */
+#login input[type="text"],
+#login input[type="password"],
+#signup input[type="text"],
+#signup input[type="password"] {
+  width: 100%;
+  padding: 14px 16px;
+  margin: var(--space-2) 0;
+  font-size: var(--fs-md);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  transition: border-color 0.2s, background 0.2s;
+}
+#login input:focus,
+#signup input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--brand) 60%, var(--border));
+  background: color-mix(in srgb, var(--brand) 4%, var(--panel));
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+}
+
+/* Buttons */
+#login button,
+#signup button {
+  width: 100%;
+  margin-top: var(--space-3);
+  padding: 12px 0;
+  background: var(--brand);
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: 0 6px 16px rgba(108, 99, 255, 0.25);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+#login button:hover,
+#signup button:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 10px 24px rgba(108, 99, 255, 0.3);
+}
+
+/* Links under forms */
+#login p,
+#signup p {
+  margin-top: var(--space-3);
+  color: var(--muted);
+  font-size: var(--fs-sm);
+}
+#login a,
+#signup a {
+  color: var(--brand);
+  font-weight: 600;
+}
+#login a:hover,
+#signup a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .login-card,
+  .signup-card {
+    padding: var(--space-5) var(--space-4);
+  }
+}

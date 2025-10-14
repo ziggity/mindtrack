@@ -1,136 +1,160 @@
-<header class="navbar">
-  <div class="brand">🧠 MindTrack</div>
-  <nav class="nav-links">
-    <a href="home.html">🏠 Home</a>
-    <a href="dashboard.html">📊 Dashboard</a>
-    <a href="journal.html">📓 Journal</a>
-    <a href="check_in.html">🙂 Check-In</a>
-    <a href="resources.html">📚 Resources</a>
-    <a href="safety.html">🛟 Safety</a>
-    <a href="login.html">🔑 Login</a>
-    <a href="signup.html">🧾 Sign Up</a>
-  </nav>
-</header>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindTrack – Journal</title>
+    <!-- If style.css is in the same folder -->
+    <link rel="stylesheet" href="style.css" />
+    <!-- If you use a static folder, use: <link rel="stylesheet" href="static/style.css" /> -->
+  </head>
 
-<section id="journal">
-  <div class="card">
-    <h1>Journal</h1>
-    <p>Write your thoughts. The date is auto included.</p>
+  <body>
+    <header class="navbar">
+      <div class="brand">🧠 MindTrack</div>
+      <nav class="nav-links">
+        <a href="home.html">🏠 Home</a>
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="journal.html" aria-current="page">📓 Journal</a>
+        <a href="check_in.html">🙂 Check-In</a>
+        <a href="resources.html">📚 Resources</a>
+        <a href="safety.html">🛟 Safety</a>
+        <a href="login.html">🔑 Login</a>
+        <a href="signup.html">🧾 Sign Up</a>
+      </nav>
+    </header>
 
-    <form id="journalForm">
-      <textarea
-        id="entryText"
-        rows="6"
-        placeholder="Start writing..."
-      ></textarea>
-      <button type="submit">Save Entry</button>
-    </form>
+    <section id="journal">
+      <div class="container">
+        <div class="card">
+          <h1>Journal</h1>
+          <p>Write your thoughts. The date is auto included.</p>
 
-    <h2 style="margin-top: 16px">Entries</h2>
-    <div id="entries"></div>
-  </div>
-</section>
+          <form id="journalForm" class="form mt-3">
+            <textarea
+              id="entryText"
+              class="input input-multiline"
+              rows="6"
+              placeholder="Start writing..."
+              required
+            ></textarea>
+            <button type="submit" class="btn mt-3">Save Entry</button>
+          </form>
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("journalForm");
-    const textarea = document.getElementById("entryText");
-    const entriesDiv = document.getElementById("entries");
+          <h2 class="mt-4">Entries</h2>
+          <div id="entries" class="entries"></div>
+        </div>
+      </div>
+    </section>
 
-    // 1) Load + MIGRATE old entries (add id if missing), then save back
-    let list = getEntries();
-    let migrated = false;
-    list = list.map((e) => {
-      if (!e.id) {
-        e.id = genId();
-        migrated = true;
-      }
-      return e;
-    });
-    if (migrated) setEntries(list);
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("journalForm");
+        const textarea = document.getElementById("entryText");
+        const entriesDiv = document.getElementById("entries");
 
-    // 2) Render oldest -> newest (new ones append to bottom)
-    list.forEach(renderRow);
+        // Load and migrate
+        let list = getEntries();
+        let migrated = false;
+        list = list.map((e) => {
+          if (!e.id) {
+            e.id = genId();
+            migrated = true;
+          }
+          return e;
+        });
+        if (migrated) setEntries(list);
 
-    // 3) Save new entry
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const text = (textarea.value || "").trim();
-      if (!text) return;
+        // Render oldest -> newest
+        list.forEach(renderRow);
 
-      const entry = { id: genId(), text, date: new Date().toLocaleString() };
-      const current = getEntries();
-      current.push(entry);
-      setEntries(current);
+        // Save new entry
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const text = (textarea.value || "").trim();
+          if (!text) return;
 
-      renderRow(entry); // append to bottom
-      textarea.value = "";
-    });
+          const entry = {
+            id: genId(),
+            text,
+            date: new Date().toLocaleString(),
+          };
+          const current = getEntries();
+          current.push(entry);
+          setEntries(current);
 
-    // 4) Delete handler (event delegation)
-    entriesDiv.addEventListener("click", (e) => {
-      const btn = e.target.closest("button[data-id]");
-      if (!btn) return;
-      const id = btn.getAttribute("data-id");
+          renderRow(entry);
+          textarea.value = "";
+          textarea.focus();
+        });
 
-      const updated = getEntries().filter((item) => item.id !== id);
-      setEntries(updated);
+        // Delete handler
+        entriesDiv.addEventListener("click", (e) => {
+          const btn = e.target.closest("button[data-id]");
+          if (!btn) return;
+          const id = btn.getAttribute("data-id");
 
-      const row = entriesDiv.querySelector(`.entry-row[data-id="${id}"]`);
-      if (row) row.remove();
-    });
+          const updated = getEntries().filter((item) => item.id !== id);
+          setEntries(updated);
 
-    // Helpers
-    function getEntries() {
-      try {
-        return JSON.parse(localStorage.getItem("journalEntries") || "[]");
-      } catch {
-        return [];
-      }
-    }
-    function setEntries(arr) {
-      localStorage.setItem("journalEntries", JSON.stringify(arr));
-    }
-    function genId() {
-      return String(Date.now()) + "-" + Math.random().toString(36).slice(2, 8);
-    }
+          const row = entriesDiv.querySelector(`.entry-row[data-id="${id}"]`);
+          if (row) {
+            row.classList.add("fade-out");
+            row.addEventListener("animationend", () => row.remove(), {
+              once: true,
+            });
+          }
+        });
 
-    function renderRow(entry) {
-      const row = document.createElement("div");
-      row.className = "entry-row";
-      row.dataset.id = entry.id;
-      row.style.padding = "10px 0";
-      row.style.borderBottom = "1px solid #ddd";
+        // Helpers
+        function getEntries() {
+          try {
+            return JSON.parse(localStorage.getItem("journalEntries") || "[]");
+          } catch {
+            return [];
+          }
+        }
+        function setEntries(arr) {
+          localStorage.setItem("journalEntries", JSON.stringify(arr));
+        }
+        function genId() {
+          return (
+            String(Date.now()) + "-" + Math.random().toString(36).slice(2, 8)
+          );
+        }
 
-      const header = document.createElement("div");
-      header.style.display = "flex";
-      header.style.justifyContent = "space-between";
-      header.style.alignItems = "center";
+        function renderRow(entry) {
+          const row = document.createElement("div");
+          row.className = "entry-row";
+          row.dataset.id = entry.id;
 
-      const dateEl = document.createElement("strong");
-      dateEl.textContent = entry.date;
+          const header = document.createElement("div");
+          header.className = "entry-header";
 
-      const delBtn = document.createElement("button");
-      delBtn.textContent = "🗑️ Delete";
-      delBtn.setAttribute("data-id", entry.id);
-      delBtn.style.background = "#e11d48";
-      delBtn.style.color = "#fff";
-      delBtn.style.border = "none";
-      delBtn.style.padding = "4px 10px";
-      delBtn.style.borderRadius = "4px";
-      delBtn.style.cursor = "pointer";
+          const dateEl = document.createElement("strong");
+          dateEl.className = "entry-date";
+          dateEl.textContent = entry.date;
 
-      header.appendChild(dateEl);
-      header.appendChild(delBtn);
+          const delBtn = document.createElement("button");
+          delBtn.className = "btn btn-danger btn-sm";
+          delBtn.textContent = "🗑️ Delete";
+          delBtn.setAttribute("data-id", entry.id);
 
-      const body = document.createElement("p");
-      body.style.margin = "8px 0 0";
-      body.innerText = entry.text; // plain text (safe)
+          header.appendChild(dateEl);
+          header.appendChild(delBtn);
 
-      row.appendChild(header);
-      row.appendChild(body);
+          const body = document.createElement("p");
+          body.className = "entry-body";
+          body.innerText = entry.text;
 
-      entriesDiv.appendChild(row); // append to bottom
-    }
-  });
-</script>
+          row.appendChild(header);
+          row.appendChild(body);
+
+          entriesDiv.appendChild(row);
+          // entrance animation
+          row.classList.add("fade-in");
+        }
+      });
+    </script>
+  </body>
+</html>

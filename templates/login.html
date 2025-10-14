@@ -1,17 +1,65 @@
-<!-- Pages -->
-<div class="card">
-  <h1>Login</h1>
-  <form method="POST">
-    <input type="text" name="username" placeholder="Enter Username" required />
-    <input
-      type="password"
-      name="password"
-      placeholder="Enter Password"
-      required
-    />
-    <button type="submit">Login</button>
-  </form>
-  <p>
-    Don’t have an account? <a href="{{ url_for('signup') }}">Sign up here</a>
-  </p>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindTrack – Login</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <!-- Navbar -->
+    <header class="navbar">
+      <div class="brand">🧠 MindTrack</div>
+      <nav class="nav-links">
+        <a href="home.html">🏠 Home</a>
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="journal.html">📓 Journal</a>
+        <a href="check_in.html">🙂 Check-In</a>
+        <a href="resources.html">📚 Resources</a>
+        <a href="safety.html">🛟 Safety</a>
+        <a href="login.html" aria-current="page">🔑 Login</a>
+        <a href="signup.html">🧾 Sign Up</a>
+      </nav>
+    </header>
+
+    <!-- Login Section -->
+    <section id="login">
+      <div class="container">
+        <div class="card login-card center">
+          <h1>🔑 Login</h1>
+          <p class="muted">Welcome back! Please sign in to continue.</p>
+
+          <form class="form mt-3" method="POST" action="#">
+            <label for="username" class="label">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              class="input"
+              placeholder="Enter Username"
+              required
+            />
+
+            <label for="password" class="label mt-2">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="input"
+              placeholder="Enter Password"
+              required
+            />
+
+            <button type="submit" class="btn mt-3">Login</button>
+          </form>
+
+          <p class="mt-4">
+            Don’t have an account?
+            <a href="signup.html" class="link">Sign up here</a>
+          </p>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>
